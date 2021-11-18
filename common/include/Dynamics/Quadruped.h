@@ -15,7 +15,7 @@
 #include "Dynamics/FloatingBaseModel.h"
 #include "Dynamics/SpatialInertia.h"
 
-#include <eigen3/Eigen/StdVector>
+#include <Eigen/StdVector>
 
 
 

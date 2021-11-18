@@ -1,7 +1,7 @@
 #ifndef Vision_RobotState
 #define Vision_RobotState
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include "../convexMPC/common_types.h"
 
 using Eigen::Matrix;

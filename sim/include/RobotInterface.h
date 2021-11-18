@@ -11,7 +11,7 @@
 #include <Utilities/PeriodicTask.h>
 #include <cheetah_visualization_lcmt.hpp>
 #include <condition_variable>
-#include <lcm-cpp.hpp>
+#include <lcm/lcm-cpp.hpp>
 #include <mutex>
 #include <thread>
 #include "Graphics3D.h"

@@ -5,10 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <mutex>
-#include <SOEM/soem/ethercat.h>
-#include "SOEM/soem/ethercat.h"
-#include "SOEM/osal/osal.h"
-#include "SOEM/osal/linux/osal_defs.h"
+#include <soem/ethercat.h>
 #include "rt/rt_ethercat.h"
 #include "SimUtilities/ti_boardcontrol.h"
 

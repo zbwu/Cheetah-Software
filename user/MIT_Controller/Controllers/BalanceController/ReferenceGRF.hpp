@@ -15,7 +15,7 @@
 #define EIGEN_NO_DEBUG
 #endif
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <qpOASES.hpp>
 #include <lcm/lcm-cpp.hpp>
 #include "sim_command_t.hpp"

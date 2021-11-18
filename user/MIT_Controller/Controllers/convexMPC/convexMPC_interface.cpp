@@ -1,7 +1,7 @@
 #include "convexMPC_interface.h"
 #include "common_types.h"
 #include "SolverMPC.h"
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>

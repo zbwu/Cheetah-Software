@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
+project(cheetah)
+
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
 
@@ -43,7 +45,8 @@ else(MINI_CHEETAH_BUILD)
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
     -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
     -Wshadow -Wsign-promo")
-    include_directories("/usr/local/include/")   # lcm includes
+    include_directories("third-party/lcm")   # lcm includes
+    include_directories("third-party/eigen")   # eigen3 includes
   endif()
 
   set(CMAKE_C_FLAGS "-O3  -ggdb  -march=native -std=gnu99 -I.")

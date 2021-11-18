@@ -71,6 +71,7 @@ struct SimulatorMessage {
   SimulatorToRobotMessage simToRobot;
 };
 
+#if 0
 /*!
  * A SimulatorSyncronizedMessage is stored in shared memory and is accessed by
  * both the simulator and the robot The simulator and robot take turns have
@@ -134,5 +135,76 @@ struct SimulatorSyncronizedMessage : public SimulatorMessage {
  private:
   SharedMemorySemaphore robotToSimSemaphore, simToRobotSemaphore;
 };
+
+#else
+
+#define ROBOT_SEMAPHORE_NAME "robot-semaphore"
+#define SIMULATOR_SEMAPHORE_NAME "simulator-semaphore"
+
+class SimulatorSyncronized {
+ public:
+
+  bool create() {
+    _simToRobotSemaphore.create(SIMULATOR_SEMAPHORE_NAME);
+    _robotToSimSemaphore.create(ROBOT_SEMAPHORE_NAME);
+
+    return _sharedMemory.createNew(DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME, true);
+  }
+
+  void destory() {
+
+  }
+
+  void attach() {
+    _sharedMemory.attach(DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME);
+    _simToRobotSemaphore.attach(SIMULATOR_SEMAPHORE_NAME);
+    _robotToSimSemaphore.attach(ROBOT_SEMAPHORE_NAME);
+  }
+
+  SimulatorMessage& getObject() {
+    return _sharedMemory.getObject();
+  }
+
+  /*!
+   * Wait for the simulator to respond
+   */
+  void waitForSimulator() { _simToRobotSemaphore.wait(); }
+
+  /*!
+   * Simulator signals that it is done
+   */
+  void simulatorIsDone() { _simToRobotSemaphore.post(); }
+
+  /*!
+   * Wait for the robot to finish
+   */
+  void waitForRobot() { _robotToSimSemaphore.wait(); }
+
+  /*!
+   * Check if the robot is done
+   * @return if the robot is done
+   */
+  bool tryWaitForRobot() { return _robotToSimSemaphore.tryWait(); }
+
+  /*!
+   * Wait for the robot to finish with a timeout
+   * @return if we finished before timing out
+   */
+  bool waitForRobotWithTimeout() {
+    return _robotToSimSemaphore.waitWithTimeout(1, 0);
+  }
+
+  /*!
+   * Signal that the robot is done
+   */
+  void robotIsDone() { _robotToSimSemaphore.post(); }
+
+ private:
+  SharedMemorySemaphore _robotToSimSemaphore;
+  SharedMemorySemaphore _simToRobotSemaphore;
+  SharedMemoryObject<SimulatorMessage> _sharedMemory;
+};
+
+#endif 
 
 #endif  // PROJECT_SIMULATORTOROBOTMESSAGE_H

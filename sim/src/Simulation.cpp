@@ -180,13 +180,12 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
 
   // init shared memory
   printf("[Simulation] Setup shared memory...\n");
-  _sharedMemory.createNew(DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME, true);
-  _sharedMemory().init();
+  _sharedMemory.create();
 
   // shared memory fields:
-  _sharedMemory().simToRobot.robotType = _robot;
+  _sharedMemory.getObject().simToRobot.robotType = _robot;
   _window->_drawList._visualizationData =
-      &_sharedMemory().robotToSim.visualizationData;
+      &_sharedMemory.getObject().robotToSim.visualizationData;
 
   // load robot control parameters
   printf("[Simulation] Load control parameters...\n");
@@ -217,9 +216,9 @@ void Simulation::sendControlParameter(const std::string& name,
                                       ControlParameterValue value,
                                       ControlParameterValueKind kind, bool isUser) {
   ControlParameterRequest& request =
-      _sharedMemory().simToRobot.controlParameterRequest;
+      _sharedMemory.getObject().simToRobot.controlParameterRequest;
   ControlParameterResponse& response =
-      _sharedMemory().robotToSim.controlParameterResponse;
+      _sharedMemory.getObject().robotToSim.controlParameterResponse;
 
   // first check no pending message
   assert(request.requestNumber == response.requestNumber);
@@ -236,11 +235,11 @@ void Simulation::sendControlParameter(const std::string& name,
 
   // run robot:
   _robotMutex.lock();
-  _sharedMemory().simToRobot.mode = SimulatorMode::RUN_CONTROL_PARAMETERS;
-  _sharedMemory().simulatorIsDone();
+  _sharedMemory.getObject().simToRobot.mode = SimulatorMode::RUN_CONTROL_PARAMETERS;
+  _sharedMemory.simulatorIsDone();
 
   // wait for robot code to finish
-  if (_sharedMemory().waitForRobotWithTimeout()) {
+  if (_sharedMemory.waitForRobotWithTimeout()) {
   } else {
     handleControlError();
     request.requestNumber = response.requestNumber; // so if we come back we won't be off by 1
@@ -248,7 +247,7 @@ void Simulation::sendControlParameter(const std::string& name,
     return;
   }
 
-  //_sharedMemory().waitForRobot();
+  //_sharedMemory.getObject().waitForRobot();
   _robotMutex.unlock();
 
   // verify response is good
@@ -265,7 +264,7 @@ void Simulation::handleControlError() {
   _running = false;
   _connected = false;
   _uiUpdate();
-  if(!_sharedMemory().robotToSim.errorMessage[0]) {
+  if(!_sharedMemory.getObject().robotToSim.errorMessage[0]) {
     printf(
       "[ERROR] Control code timed-out!\n");
     _errorCallback("Control code has stopped responding without giving an error message.\nIt has likely crashed - "
@@ -273,7 +272,7 @@ void Simulation::handleControlError() {
 
   } else {
     printf("[ERROR] Control code has an error!\n");
-    _errorCallback("Control code has an error:\n" + std::string(_sharedMemory().robotToSim.errorMessage));
+    _errorCallback("Control code has an error:\n" + std::string(_sharedMemory.getObject().robotToSim.errorMessage));
   }
 
 }
@@ -285,15 +284,15 @@ void Simulation::handleControlError() {
 void Simulation::firstRun() {
   // connect to robot
   _robotMutex.lock();
-  _sharedMemory().simToRobot.mode = SimulatorMode::DO_NOTHING;
-  _sharedMemory().simulatorIsDone();
+  _sharedMemory.getObject().simToRobot.mode = SimulatorMode::DO_NOTHING;
+  _sharedMemory.simulatorIsDone();
 
   printf("[Simulation] Waiting for robot...\n");
 
   // this loop will check to see if the robot is connected at 10 Hz
   // doing this in a loop allows us to click the "stop" button in the GUI
   // and escape from here before the robot code connects, if needed
-  while (!_sharedMemory().tryWaitForRobot()) {
+  while (!_sharedMemory.tryWaitForRobot()) {
     if (_wantStop) {
       return;
     }
@@ -417,26 +416,26 @@ void Simulation::lowLevelControl() {
 
 void Simulation::highLevelControl() {
   // send joystick data to robot:
-  _sharedMemory().simToRobot.gamepadCommand = _window->getDriverCommand();
-  _sharedMemory().simToRobot.gamepadCommand.applyDeadband(
+  _sharedMemory.getObject().simToRobot.gamepadCommand = _window->getDriverCommand();
+  _sharedMemory.getObject().simToRobot.gamepadCommand.applyDeadband(
       _simParams.game_controller_deadband);
 
   // send IMU data to robot:
   _imuSimulator->updateCheaterState(_simulator->getState(),
                                     _simulator->getDState(),
-                                    _sharedMemory().simToRobot.cheaterState);
+                                    _sharedMemory.getObject().simToRobot.cheaterState);
 
   _imuSimulator->updateVectornav(_simulator->getState(),
                                    _simulator->getDState(),
-                                   &_sharedMemory().simToRobot.vectorNav);
+                                   &_sharedMemory.getObject().simToRobot.vectorNav);
 
 
   // send leg data to robot
   if (_robot == RobotType::MINI_CHEETAH) {
-    _sharedMemory().simToRobot.spiData = _spiData;
+    _sharedMemory.getObject().simToRobot.spiData = _spiData;
   } else if (_robot == RobotType::CHEETAH_3) {
     for (int i = 0; i < 4; i++) {
-      _sharedMemory().simToRobot.tiBoardData[i] = *_tiBoards[i].data;
+      _sharedMemory.getObject().simToRobot.tiBoardData[i] = *_tiBoards[i].data;
     }
   } else {
     assert(false);
@@ -446,8 +445,8 @@ void Simulation::highLevelControl() {
   // the _robotMutex is used to prevent qt (which runs in its own thread) from
   // sending a control parameter while the robot code is already running.
   _robotMutex.lock();
-  _sharedMemory().simToRobot.mode = SimulatorMode::RUN_CONTROLLER;
-  _sharedMemory().simulatorIsDone();
+  _sharedMemory.getObject().simToRobot.mode = SimulatorMode::RUN_CONTROLLER;
+  _sharedMemory.simulatorIsDone();
 
   // wait for robot code to finish (and send LCM while waiting)
   if (_lcm) {
@@ -459,7 +458,7 @@ void Simulation::highLevelControl() {
   if (_wantStop) return;
 
   // next try waiting at most 1 second:
-  if (_sharedMemory().waitForRobotWithTimeout()) {
+  if (_sharedMemory.waitForRobotWithTimeout()) {
   } else {
     handleControlError();
     _robotMutex.unlock();
@@ -469,14 +468,14 @@ void Simulation::highLevelControl() {
 
   // update
   if (_robot == RobotType::MINI_CHEETAH) {
-    _spiCommand = _sharedMemory().robotToSim.spiCommand;
+    _spiCommand = _sharedMemory.getObject().robotToSim.spiCommand;
 
     // pretty_print(_spiCommand.q_des_abad, "q des abad", 4);
     // pretty_print(_spiCommand.q_des_hip, "q des hip", 4);
     // pretty_print(_spiCommand.q_des_knee, "q des knee", 4);
   } else if (_robot == RobotType::CHEETAH_3) {
     for (int i = 0; i < 4; i++) {
-      _tiBoards[i].command = _sharedMemory().robotToSim.tiBoardCommand[i];
+      _tiBoards[i].command = _sharedMemory.getObject().robotToSim.tiBoardCommand[i];
     }
   } else {
     assert(false);
@@ -824,12 +823,12 @@ void Simulation::loadTerrainFile(const std::string& terrainFileName,
 
 void Simulation::updateGraphics() {
   _robotControllerState.bodyOrientation =
-      _sharedMemory().robotToSim.mainCheetahVisualization.quat.cast<double>();
+      _sharedMemory.getObject().robotToSim.mainCheetahVisualization.quat.cast<double>();
   _robotControllerState.bodyPosition =
-      _sharedMemory().robotToSim.mainCheetahVisualization.p.cast<double>();
+      _sharedMemory.getObject().robotToSim.mainCheetahVisualization.p.cast<double>();
   for (int i = 0; i < 12; i++)
     _robotControllerState.q[i] =
-        _sharedMemory().robotToSim.mainCheetahVisualization.q[i];
+        _sharedMemory.getObject().robotToSim.mainCheetahVisualization.q[i];
   _robotDataSimulator->setState(_robotControllerState);
   _robotDataSimulator->forwardKinematics();  // calc all body positions
   _window->_drawList.updateRobotFromModel(*_simulator, _simRobotID, true);

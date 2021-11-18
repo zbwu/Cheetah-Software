@@ -13,10 +13,10 @@
 #include "RobotInterface.h"
 #include "Simulation.h"
 
-#define DEFAULT_TERRAIN_FILE "/default-terrain.yaml"
-#define DEFAULT_USER_FILE "/default-user-parameters-file.yaml"
+#define DEFAULT_TERRAIN_FILE "default-terrain.yaml"
+#define DEFAULT_USER_FILE "default-user-parameters-file.yaml"
 
-#include <lcm-cpp.hpp>
+#include <lcm/lcm-cpp.hpp>
 #include <src/MiniCheetahDebug.h>
 #include <leg_control_data_lcmt.hpp>
 #include "rs_pointcloud_t.hpp"

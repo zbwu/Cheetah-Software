@@ -5,7 +5,7 @@
 #include <Controllers/VisionMPC/VisionMPCLocomotion.h>
 #include "FSM_State.h"
 #include <thread>
-#include <lcm-cpp.hpp>
+#include <lcm/lcm-cpp.hpp>
 #include "heightmap_t.hpp"
 #include "traversability_map_t.hpp"
 #include "velocity_visual_t.hpp"

@@ -2,8 +2,8 @@
 #define QPSOLVER_TYPES_H
 
 #include <stdint.h>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/Sparse>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 
 using u64 = uint64_t;
 using u32 = uint32_t;

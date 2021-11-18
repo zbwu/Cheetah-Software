@@ -167,8 +167,8 @@ int init_sbus(int is_simulator) {
   if (fd1 < 0) {
     printf("Error opening %s: %s\n", port1.c_str(), strerror(errno));
   } else {
-    init_serial_for_sbus(fd1, 100000);
 #ifdef linux
+    init_serial_for_sbus(fd1, 100000);
     //set_interface_attribs_custom_baud(fd1, 100000, 0, 0);
 #endif
   }

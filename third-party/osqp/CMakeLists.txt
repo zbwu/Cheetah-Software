@@ -301,7 +301,7 @@ add_subdirectory(lin_sys)
 #add_library (osqpstatic STATIC ${osqp_src} ${osqp_headers} ${linsys_solvers})
 add_library (osqpstatic SHARED ${osqp_src} ${osqp_headers} ${linsys_solvers})
 # Give same name to static library output
-set_target_properties(osqpstatic PROPERTIES OUTPUT_NAME osqp)
+set_target_properties(osqpstatic PROPERTIES OUTPUT_NAME osqpstatic)
 
 # Include directories for linear system solvers
 target_include_directories(osqpstatic PRIVATE ${linsys_solvers_includes})

@@ -22,6 +22,7 @@
 
 #define DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME "development-simulator"
 
+#if 0
 /*!
  * A POSIX semaphore for shared memory.
  * See https://linux.die.net/man/7/sem_overview for more deatils
@@ -96,6 +97,88 @@ class SharedMemorySemaphore {
   bool _init = false;
 };
 
+#else
+
+class SharedMemorySemaphore {
+ public:
+
+  void create(const std::string& name) {
+    _name = name.c_str();
+    _sem = sem_open(_name, O_CREAT | O_EXCL, 0644, 0);
+    if (_sem == SEM_FAILED && errno == EEXIST) {
+      int ret = sem_unlink(_name);
+      if (ret == 0) {
+        _sem = sem_open(_name, O_CREAT | O_EXCL, 0644, 0);
+      } else {
+        printf("[ERROR] Failed to unlink simulator semaphore: %s\n",
+               strerror(errno));
+      }
+    }
+
+    if (_sem == SEM_FAILED) {
+      printf("[ERROR] Failed to create simulator semaphore: %s\n",
+             strerror(errno));
+      throw std::runtime_error("Failed to create semaphore!");
+    }
+  }
+
+  void destroy(){
+    if (_sem != NULL || _sem != SEM_FAILED) {
+      sem_close(_sem);
+    }
+    int ret = sem_unlink(_name);
+    if (ret != 0) {
+      printf("[ERROR] Failed to unlink simulator semaphore: %s\n",
+             strerror(errno));
+    }
+  }
+
+  void attach(const std::string& name) {
+    _name = name.c_str();
+    _sem = sem_open(_name, 0);
+    if (_sem == SEM_FAILED) {
+      printf("[ERROR] Failed to attach simulator semaphore: %s\n",
+               strerror(errno));
+      throw std::runtime_error("Failed to attach semaphore!");
+    }
+  }
+
+  void wait() { sem_wait(_sem); }
+
+  bool tryWait() { return (sem_trywait(_sem)) == 0; }
+
+  bool waitWithTimeout(u64 seconds, u64 nanoseconds) {
+#ifdef linux
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts.tv_nsec += nanoseconds;
+    ts.tv_sec += seconds;
+    ts.tv_sec += ts.tv_nsec / 1000000000;
+    ts.tv_nsec %= 1000000000;
+    return (sem_timedwait(&_sem, &ts) == 0);
+#else
+    u64 count = 40; // 40ns, 80ns, 160ns...
+    u64 usec = seconds * 1000000 + nanoseconds / 1000;
+    while (count < usec) {
+      usleep(count);
+      if (sem_trywait(_sem) == 0) {
+        return true;
+      }
+      count += count;
+    }
+    return false;
+#endif
+    
+  }
+
+  void post() { sem_post(_sem); }
+
+ private:
+  const char *_name;
+  sem_t *_sem;
+};
+#endif
+
 /*!
  * A container class for an object which is stored in shared memory.  This
  * object can then be viewed in multiple processes or programs.  Note that there
@@ -132,13 +215,25 @@ class SharedMemoryObject {
     bool hadToDelete = false;
     assert(!_data);
     _name = name;
-    _size = sizeof(T);
-    printf("[Shared Memory] open new %s, size %ld bytes\n", name.c_str(),
+    _size = (sizeof(T) / 64 / 1024 + 1) * 64 * 1024; // 64k align
+    printf("[Shared Memory] open new %s, size %zu bytes\n", name.c_str(),
            _size);
 
-    _fd = shm_open(name.c_str(), O_RDWR | O_CREAT, 
+    _fd = shm_open(name.c_str(), O_RDWR | O_CREAT | O_EXCL, 
                    S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IROTH);
-     if (_fd == -1) {
+
+    if (_fd == -1 && errno == EEXIST) {
+      int ret = shm_unlink(name.c_str());
+      if (ret == 0) {
+        _fd = shm_open(name.c_str(), O_RDWR | O_CREAT | O_EXCL, 
+                       S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IROTH);
+      } else {
+        printf("[ERROR] Failed to unlink shared memory: %s\n",
+               strerror(errno));
+      }
+    }
+
+    if (_fd == -1) {
       printf("[ERROR] SharedMemoryObject shm_open failed: %s\n",
              strerror(errno));
       throw std::runtime_error("Failed to create shared memory!");
@@ -156,7 +251,7 @@ class SharedMemoryObject {
     if (s.st_size) {
       printf(
           "[Shared Memory] SharedMemoryObject::createNew(%s) on something that "
-          "wasn't new (size is %ld bytes)\n",
+          "wasn't new (size is %lld bytes)\n",
           _name.c_str(), s.st_size);
       hadToDelete = true;
       if (!allowOverwrite)
@@ -168,7 +263,7 @@ class SharedMemoryObject {
     }
 
     if (ftruncate(_fd, _size)) {
-      printf("[ERROR] SharedMemoryObject::createNew(%s) ftruncate(%ld): %s\n",
+      printf("[ERROR] SharedMemoryObject::createNew(%s) ftruncate(%zu): %s\n",
              name.c_str(), _size, strerror(errno));
       throw std::runtime_error("Failed to create shared memory!");
       return false;
@@ -198,8 +293,8 @@ class SharedMemoryObject {
   void attach(const std::string& name) {
     assert(!_data);
     _name = name;
-    _size = sizeof(T);
-    printf("[Shared Memory] open existing %s size %ld bytes\n", name.c_str(),
+    _size = (sizeof(T) / 64 / 1024 + 1) * 64 * 1024; // 64k align
+    printf("[Shared Memory] open existing %s size %zu bytes\n", name.c_str(),
            _size);
     _fd = shm_open(name.c_str(), O_RDWR,
                    S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IROTH);
@@ -222,7 +317,7 @@ class SharedMemoryObject {
       printf(
           "[ERROR] SharedMemoryObject::attach(%s) on something that was "
           "incorrectly "
-          "sized (size is %ld bytes, should be %ld)\n",
+          "sized (size is %lld bytes, should be %zu)\n",
           _name.c_str(), s.st_size, _size);
       throw std::runtime_error("Failed to create shared memory!");
       return;
@@ -304,6 +399,7 @@ class SharedMemoryObject {
     _fd = 0;
   }
 
+#if 0
   /*!
    * Get the shared memory object.
    */
@@ -316,6 +412,12 @@ class SharedMemoryObject {
    * Get the shared memory object.
    */
   T& operator()() {
+    assert(_data);
+    return *_data;
+  }
+#endif
+
+  T& getObject() {
     assert(_data);
     return *_data;
   }

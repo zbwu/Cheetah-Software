@@ -8,7 +8,7 @@
 #include <WBC/WBIC/WBIC.hpp>
 #include <WBC/WBIC/KinWBC.hpp>
 
-#include <lcm-cpp.hpp>
+#include <lcm/lcm-cpp.hpp>
 #include "wbc_test_data_t.hpp"
 
 #define WBCtrl WBC_Ctrl<T>

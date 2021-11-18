@@ -2,15 +2,15 @@
 #include "common_types.h"
 #include "convexMPC_interface.h"
 #include "RobotState.h"
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <cmath>
-#include <eigen3/unsupported/Eigen/MatrixFunctions>
+#include <unsupported/Eigen/MatrixFunctions>
 //#include <unsupported/Eigen/MatrixFunctions>
 #include <qpOASES.hpp>
 #include <stdio.h>
 #include <sys/time.h>
 #include <Utilities/Timer.h>
-#include <JCQP/QpProblem.h>
+#include <QpProblem.h>
 
 //#define K_PRINT_EVERYTHING
 #define BIG_NUMBER 5e10

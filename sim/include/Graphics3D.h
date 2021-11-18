@@ -8,6 +8,10 @@
 #ifndef PROJECT_GRAPHICS3D_H
 #define PROJECT_GRAPHICS3D_H
 
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#endif
+
 #include "DrawList.h"
 #include "Math/FirstOrderIIRFilter.h"
 #include "obj_loader.h"
@@ -18,6 +22,7 @@
 #include <QOpenGLPaintDevice>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
+#include <QFontDatabase>
 #include <QPainter>
 #include <QWindow>
 #include "SimUtilities/VisualizationData.h"
@@ -67,7 +72,9 @@ class Graphics3D : public QOpenGLWidget, protected QOpenGLFunctions {
   void initializeGL() override;
   // void resizeGL(int w, int h) override;
   void paintGL() override;
-  // bool event(QEvent *event) override;
+  #ifdef __APPLE__
+  bool event(QEvent *event) override;
+  #endif
 
   // void exposeEvent(QExposeEvent *event) override; ??
 
@@ -75,7 +82,9 @@ class Graphics3D : public QOpenGLWidget, protected QOpenGLFunctions {
   void mousePressEvent(QMouseEvent *event) override;
   void mouseMoveEvent(QMouseEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override;
+  #ifndef __APPLE__
   void wheelEvent(QWheelEvent *e) override;
+  #endif
   void keyReleaseEvent(QKeyEvent *e) override;
   void keyPressEvent(QKeyEvent *event) override;
 
@@ -142,6 +151,9 @@ class Graphics3D : public QOpenGLWidget, protected QOpenGLFunctions {
   int _frame;
   // time of last frame
   qint64 last_frame_ms = 0;
+
+  // info font
+  QFont _fixedFont;
 
   // UI orbit/zoom variables
   bool _orbiting = false;

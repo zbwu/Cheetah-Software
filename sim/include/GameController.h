@@ -9,10 +9,15 @@
 
 #include "SimUtilities/GamepadCommand.h"
 
+#ifdef QT_GAMEPAD
 #include <QtCore/QObject>
 
 class QGamepad;  // for an unknown reason, #including <QtGamepad/QGamepad> here
                  // makes compilation *very* slow
+#else
+#include <QtCore/QObject>
+#include <SDL.h>
+#endif
 
 class GameController : public QObject {
   Q_OBJECT
@@ -23,7 +28,12 @@ class GameController : public QObject {
   ~GameController();
 
  private:
+#ifdef QT_GAMEPAD
   QGamepad *_qGamepad = nullptr;
+#else
+  int _recheckCount = 0;
+  SDL_GameController *_controller = NULL;
+#endif
 };
 
 #endif  // PROJECT_GAMECONTROLLER_H

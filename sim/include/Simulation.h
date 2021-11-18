@@ -100,8 +100,8 @@ class Simulation {
     _wantStop = true;  // if we're still trying to connect, this will kill us
 
     if (_connected) {
-      _sharedMemory().simToRobot.mode = SimulatorMode::EXIT;
-      _sharedMemory().simulatorIsDone();
+      _sharedMemory.getObject().simToRobot.mode = SimulatorMode::EXIT;
+      _sharedMemory.simulatorIsDone();
     }
   }
 
@@ -122,7 +122,7 @@ class Simulation {
   Graphics3D* _window = nullptr;
 
   std::mutex _robotMutex;
-  SharedMemoryObject<SimulatorSyncronizedMessage> _sharedMemory;
+  SimulatorSyncronized _sharedMemory;
   ImuSimulator<double>* _imuSimulator = nullptr;
   SimulatorControlParameters& _simParams;
   ControlParameters& _userParams;

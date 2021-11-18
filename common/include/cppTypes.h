@@ -10,7 +10,7 @@
 
 #include <vector>
 #include "cTypes.h"
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
 // Rotation Matrix
 template <typename T>
@@ -116,6 +116,6 @@ using D3Mat = typename Eigen::Matrix<T, 3, Eigen::Dynamic>;
 template <typename T>
 using vectorAligned = typename std::vector<T, Eigen::aligned_allocator<T>>;
 
-enum class RobotType { CHEETAH_3, MINI_CHEETAH };
+enum class RobotType { CHEETAH_3, MINI_CHEETAH, CYBERDOG };
 
 #endif  // PROJECT_CPPTYPES_H

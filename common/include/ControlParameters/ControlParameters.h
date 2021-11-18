@@ -547,8 +547,10 @@ class ControlParameters {
    */
   void unlockMutex() { _mutex.unlock(); }
 
+#ifdef INI_FILE
   void writeToIniFile(const std::string& path);
   void initializeFromIniFile(const std::string& path);
+#endif
   void initializeFromYamlFile(const std::string& path);
   void defineAndInitializeFromYamlFile(const std::string& path);
 

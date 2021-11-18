@@ -15,10 +15,9 @@
  */
 void SimulationBridge::run() {
   // init shared memory:
-  _sharedMemory.attach(DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME);
-  _sharedMemory().init();
+  _sharedMemory.attach();
 
-  install_segfault_handler(_sharedMemory().robotToSim.errorMessage);
+  install_segfault_handler(_sharedMemory.getObject().robotToSim.errorMessage);
 
   // init Quadruped Controller
 
@@ -29,22 +28,22 @@ void SimulationBridge::run() {
       // wait for our turn to access the shared memory
       // on the first loop, this gives the simulator a chance to put stuff in
       // shared memory before we start
-      _sharedMemory().waitForSimulator();
+      _sharedMemory.waitForSimulator();
 
       if (firstRun) {
         firstRun = false;
         // check that the robot type is correct:
-        if (_robot != _sharedMemory().simToRobot.robotType) {
+        if (_robot != _sharedMemory.getObject().simToRobot.robotType) {
           printf(
             "simulator and simulatorDriver don't agree on which robot we are "
             "simulating (robot %d, sim %d)\n",
-            (int)_robot, (int)_sharedMemory().simToRobot.robotType);
+            (int)_robot, (int)_sharedMemory.getObject().simToRobot.robotType);
           throw std::runtime_error("robot mismatch!");
         }
       }
 
       // the simulator tells us which mode to run in
-      _simMode = _sharedMemory().simToRobot.mode;
+      _simMode = _sharedMemory.getObject().simToRobot.mode;
       switch (_simMode) {
         case SimulatorMode::RUN_CONTROL_PARAMETERS:  // there is a new control
           // parameter request
@@ -67,11 +66,11 @@ void SimulationBridge::run() {
       }
 
       // tell the simulator we are done
-      _sharedMemory().robotIsDone();
+      _sharedMemory.robotIsDone();
     }
   } catch (std::exception& e) {
-    strncpy(_sharedMemory().robotToSim.errorMessage, e.what(), sizeof(_sharedMemory().robotToSim.errorMessage));
-    _sharedMemory().robotToSim.errorMessage[sizeof(_sharedMemory().robotToSim.errorMessage) - 1] = '\0';
+    strncpy(_sharedMemory.getObject().robotToSim.errorMessage, e.what(), sizeof(_sharedMemory.getObject().robotToSim.errorMessage));
+    _sharedMemory.getObject().robotToSim.errorMessage[sizeof(_sharedMemory.getObject().robotToSim.errorMessage) - 1] = '\0';
     throw e;
   }
 
@@ -82,9 +81,9 @@ void SimulationBridge::run() {
  */
 void SimulationBridge::handleControlParameters() {
   ControlParameterRequest& request =
-      _sharedMemory().simToRobot.controlParameterRequest;
+      _sharedMemory.getObject().simToRobot.controlParameterRequest;
   ControlParameterResponse& response =
-      _sharedMemory().robotToSim.controlParameterResponse;
+      _sharedMemory.getObject().robotToSim.controlParameterResponse;
   if (request.requestNumber <= response.requestNumber) {
     // nothing to do!
     printf(
@@ -231,29 +230,32 @@ void SimulationBridge::runRobotControl() {
 
 
     _robotRunner->driverCommand =
-        &_sharedMemory().simToRobot.gamepadCommand;
-    _robotRunner->spiData = &_sharedMemory().simToRobot.spiData;
-    _robotRunner->tiBoardData = _sharedMemory().simToRobot.tiBoardData;
+        &_sharedMemory.getObject().simToRobot.gamepadCommand;
+    _robotRunner->spiData = &_sharedMemory.getObject().simToRobot.spiData;
+    _robotRunner->tiBoardData = _sharedMemory.getObject().simToRobot.tiBoardData;
     _robotRunner->robotType = _robot;
-    _robotRunner->vectorNavData = &_sharedMemory().simToRobot.vectorNav;
-    _robotRunner->cheaterState = &_sharedMemory().simToRobot.cheaterState;
-    _robotRunner->spiCommand = &_sharedMemory().robotToSim.spiCommand;
+    _robotRunner->vectorNavData = &_sharedMemory.getObject().simToRobot.vectorNav;
+    _robotRunner->cheaterState = &_sharedMemory.getObject().simToRobot.cheaterState;
+    _robotRunner->spiCommand = &_sharedMemory.getObject().robotToSim.spiCommand;
     _robotRunner->tiBoardCommand =
-        _sharedMemory().robotToSim.tiBoardCommand;
+        _sharedMemory.getObject().robotToSim.tiBoardCommand;
     _robotRunner->controlParameters = &_robotParams;
     _robotRunner->visualizationData =
-        &_sharedMemory().robotToSim.visualizationData;
+        &_sharedMemory.getObject().robotToSim.visualizationData;
     _robotRunner->cheetahMainVisualization =
-        &_sharedMemory().robotToSim.mainCheetahVisualization;
+        &_sharedMemory.getObject().robotToSim.mainCheetahVisualization;
 
     _robotRunner->init();
     _firstControllerRun = false;
 
+#ifdef linux
     sbus_thread = new std::thread(&SimulationBridge::run_sbus, this);
+#endif
   }
   _robotRunner->run();
 }
 
+#ifdef linux
 /*!
  * Run the RC receive thread
  */
@@ -270,3 +272,4 @@ void SimulationBridge::run_sbus() {
     usleep(5000);
   }
 }
+#endif

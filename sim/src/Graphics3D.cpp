@@ -118,6 +118,9 @@ Graphics3D::Graphics3D(QWidget *parent)
 
   _map = DMat<float>::Zero(x_size, y_size);
   _idx_map = DMat<int>::Zero(x_size, y_size);
+
+  _fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+  _fixedFont.setPointSize(16);
 }
 
 Graphics3D::~Graphics3D() {}
@@ -221,6 +224,20 @@ void Graphics3D::initializeGL() {
   glClearColor(clearColor[0], clearColor[1], clearColor[2], 0.f);
 }
 
+#ifdef __APPLE__
+bool Graphics3D::event(QEvent *event) {
+  if (event->type() == QEvent::NativeGesture) {
+    QNativeGestureEvent *ngevent = static_cast<QNativeGestureEvent*>(event);
+    if (ngevent->gestureType() == Qt::NativeGestureType::ZoomNativeGesture) {
+      double scale = ngevent->value();
+      _zoom = _zoom * (1.0 - scale);
+      return true;
+    }
+  }
+  return QWidget::event(event);
+}
+#endif
+
 /*-----------------------------------------*
  * Mouse Handlers for Orbit and Zoom       *
  *-----------------------------------------*/
@@ -245,6 +262,7 @@ void Graphics3D::mouseReleaseEvent(QMouseEvent *event) {
   _ry_base = _ry_base + _pixel_to_rad * (event->pos().y() - _orbiting_y_start);
 }
 
+#ifndef __APPLE__
 void Graphics3D::wheelEvent(QWheelEvent *e) {
   if (e->angleDelta().y() > 0) {
     if (_zoom > .1) _zoom = 0.8f * _zoom;
@@ -252,6 +270,7 @@ void Graphics3D::wheelEvent(QWheelEvent *e) {
     if (_zoom < 100) _zoom = 1.2f * _zoom;
   }
 }
+#endif
 
 void Graphics3D::keyPressEvent(QKeyEvent *e) {
   if (e->key() == Qt::Key_Control) {
@@ -540,11 +559,10 @@ void Graphics3D::paintGL() {
 
   glDisable(GL_DEPTH_TEST);
   painter2.setPen(QColor(100, 100, 100, 255));
-  painter2.fillRect(QRect(30, 30, 400, 200), QColor(100, 100, 100, 220));
-  QFont font("Monospace", 20);
-  painter2.setPen(QColor(210, 100, 100));
-  painter2.setFont(font);
-  painter2.drawText(QRect(30, 30, 1000, 1000), Qt::AlignLeft,
+  painter2.fillRect(QRect(30, 30, 320, 180), QColor(100, 100, 100, 200));
+  painter2.setFont(_fixedFont);
+  painter2.setPen(QColor(210, 100, 100, 200));
+  painter2.drawText(QRect(40, 40, 300, 160), Qt::AlignLeft,
                     QString(infoString));
   painter2.end();
 

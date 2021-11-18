@@ -1,7 +1,7 @@
 #include "VisionMPC_interface.h"
 #include "../convexMPC/common_types.h"
 #include "VisionSolverMPC.h"
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>

@@ -15,8 +15,11 @@
 #define TASK_PRIORITY 49      // linux priority, this is not the nice value
 
 #include <string>
-#include <lcm-cpp.hpp>
+#include <lcm/lcm-cpp.hpp>
+
+#ifdef LORD_IMU
 #include <lord_imu/LordImu.h>
+#endif
 
 #include "RobotRunner.h"
 #include "Utilities/PeriodicTask.h"
@@ -109,6 +112,7 @@ class MiniCheetahHardwareBridge : public HardwareBridge {
   bool _load_parameters_from_file;
 };
 
+#ifdef CHEETAH3
 class Cheetah3HardwareBridge : public HardwareBridge {
 public:
   Cheetah3HardwareBridge(RobotController* rc);
@@ -125,5 +129,6 @@ private:
   ecat_data_t ecatDataLcm;
   // nothing?
 };
+#endif
 #endif // END of #ifdef linux
 #endif  // PROJECT_HARDWAREBRIDGE_H

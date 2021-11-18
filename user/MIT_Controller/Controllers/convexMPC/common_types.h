@@ -1,7 +1,7 @@
 #ifndef _common_types
 #define _common_types
 #include <stdint.h>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
 //adding this line adds print statements and sanity checks 
 //that are too slow for realtime use.

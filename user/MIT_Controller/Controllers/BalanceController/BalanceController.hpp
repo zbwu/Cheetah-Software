@@ -21,7 +21,7 @@ Cheetah-3-Documentation-Control:
 #define EIGEN_NO_DEBUG
 #endif
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <lcm/lcm-cpp.hpp>
 #include <qpOASES.hpp>
 #include "qp_controller_data_t.hpp"

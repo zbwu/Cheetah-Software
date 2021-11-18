@@ -2,6 +2,7 @@ build/
 mc-build/
 cmake-build-debug/
 .idea/
+.vscode/
 lcm-types/cheetahlcm
 lcm-types/c_lcm_files
 lcm-types/controllerlcm
@@ -10,6 +11,7 @@ lcm-types/java
 lcm-types/simulatorlcm
 lcm-types/wincontrollerlcm
 lcm-types/file_list.txt
+lcm-types/c/*
 lcm-types/cpp/*
 lcm-types/lcmtypes/*
 lcm-types/python/*

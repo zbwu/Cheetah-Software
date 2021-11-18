@@ -7,7 +7,9 @@
 #include <utility>
 
 #include "ControlParameters/ControlParameters.h"
+#ifdef INI_FILE
 #include "INIReader.h"
+#endif
 #include "ParamHandler.hpp"
 #include "Utilities/utilities.h"
 
@@ -219,6 +221,7 @@ std::string ControlParameterCollection::printToYamlString() {
   return result;
 }
 
+#ifdef INI_FILE
 /*!
  * Write all parameters and values to an INI file
  * @param path : the file name
@@ -226,6 +229,7 @@ std::string ControlParameterCollection::printToYamlString() {
 void ControlParameters::writeToIniFile(const std::string& path) {
   writeStringToFile(path, collection.printToIniString());
 }
+#endif
 
 /*!
  * Write all parameters and values to a YAML file
@@ -235,6 +239,7 @@ void ControlParameters::writeToYamlFile(const std::string& path) {
   writeStringToFile(path, collection.printToYamlString());
 }
 
+#ifdef INI_FILE
 /*!
  * Load values from an INI file
  * @param path : the file name
@@ -291,6 +296,7 @@ void ControlParameters::initializeFromIniFile(const std::string& path) {
     }
   }
 }
+#endif
 
 /*!
  * Determine the kind of a control parameter from a string representation

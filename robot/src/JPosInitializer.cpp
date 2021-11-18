@@ -5,7 +5,7 @@
 
 #include "JPosInitializer.h"
 #include "Utilities/Utilities_print.h"
-#include "ParamHandler/ParamHandler.hpp"
+#include "ParamHandler.hpp"
 #include <Configuration.h>
 
 template <typename T>

@@ -15,32 +15,143 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="leftXLabel">
-     <property name="text">
-      <string>Left X:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="leftYLabel">
-     <property name="text">
-      <string>Left Y:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="rightXLabel">
-     <property name="text">
-      <string>Right X:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="rightYLabel">
-     <property name="text">
-      <string>Right Y:</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QLabel" name="leftYLabel">
+         <property name="text">
+          <string>Left Y:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="leftXLabel">
+         <property name="text">
+          <string>Left X:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="rightYLabel">
+         <property name="text">
+          <string>Right Y:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="rightXLabel">
+         <property name="text">
+          <string>Right X:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="leftTriggerLabel">
+         <property name="text">
+          <string>Left Trigger:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="rightTriggerLabel">
+         <property name="text">
+          <string>Right Trigger:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="aLabel">
+         <property name="text">
+          <string>A:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="bLabel">
+         <property name="text">
+          <string>B:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="xLabel">
+         <property name="text">
+          <string>X:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="yLabel">
+         <property name="text">
+          <string>Y:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="leftTriggerButtonLabel">
+         <property name="text">
+          <string>Left Trigger:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="rightTriggerButtonLabel">
+         <property name="text">
+          <string>Right Trigger:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="startLabel">
+         <property name="text">
+          <string>Start:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="backLabel">
+         <property name="text">
+          <string>Back:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

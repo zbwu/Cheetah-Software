@@ -32,7 +32,9 @@ class SimulationBridge {
     delete _fakeTaskManager;
     delete _robotRunner;
   }
+  #ifdef linux
   void run_sbus();
+  #endif
 
  private:
   PeriodicTaskManager taskManager;
@@ -41,12 +43,14 @@ class SimulationBridge {
   RobotType _robot;
   RobotRunner* _robotRunner = nullptr;
   SimulatorMode _simMode;
-  SharedMemoryObject<SimulatorSyncronizedMessage> _sharedMemory;
+  SimulatorSyncronized _sharedMemory;
   RobotControlParameters _robotParams;
   ControlParameters* _userParams = nullptr;
   u64 _iterations = 0;
 
+#ifdef linux
   std::thread* sbus_thread;
+#endif
 };
 
 #endif  // PROJECT_SIMULATIONDRIVER_H

@@ -392,6 +392,7 @@ void MiniCheetahHardwareBridge::initHardware() {
   _microstrainInit = _microstrainImu.tryInit(0, 921600);
 }
 
+#ifdef CHEETAH3
 void Cheetah3HardwareBridge::initHardware() {
   _vectorNavData.quat << 1, 0, 0, 0;
   printf("[Cheetah 3 Hardware] Init vectornav\n");
@@ -405,6 +406,7 @@ void Cheetah3HardwareBridge::initHardware() {
     //initError("failed to initialize vectornav!\n", false);
   }
 }
+#endif
 
 /*!
  * Run Mini Cheetah SPI
@@ -421,6 +423,7 @@ void MiniCheetahHardwareBridge::runSpi() {
   _spiLcm.publish("spi_command", cmd);
 }
 
+#ifdef CHEETAH3
 void Cheetah3HardwareBridge::runEcat() {
   rt_ethercat_set_command(_tiBoardCommand);
   rt_ethercat_run();
@@ -496,6 +499,7 @@ void Cheetah3HardwareBridge::publishEcatLCM() {
   _ecatLCM.publish("ecat_cmd", &ecatCmdLcm);
   _ecatLCM.publish("ecat_data", &ecatDataLcm);
 }
+#endif
 
 /*!
  * Send LCM visualization data
@@ -518,6 +522,7 @@ void HardwareBridge::publishVisualizationLCM() {
   _visualizationLCM.publish("main_cheetah_visualization", &visualization_data);
 }
 
+#ifdef CHEETAH3
 Cheetah3HardwareBridge::Cheetah3HardwareBridge(RobotController *rc) : HardwareBridge(rc),  _ecatLCM(getLcmUrl(255)) {
 
 }
@@ -588,5 +593,6 @@ void Cheetah3HardwareBridge::run() {
     // printf("joy %f\n", _robotRunner->driverCommand->leftStickAnalog[0]);
   }
 }
+#endif
 
 #endif

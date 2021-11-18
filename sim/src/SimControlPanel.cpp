@@ -86,6 +86,12 @@ SimControlPanel::SimControlPanel(QWidget* parent)
   updateUiEnable();  // enable/disable buttons as needed.
   updateTerrainLabel(); // display name of loaded terrain file
 
+#ifdef __APPLE__
+  ui->cheetah3Button->setVisible(false);
+  ui->miniCheetahButton->click();
+  ui->simulatorButton->click();
+#endif
+
   // attempt to load default user settings.
   _loadedUserSettings = true;
 
@@ -327,7 +333,8 @@ void SimControlPanel::updateUiEnable() {
  * Update the name of the loaded terrain file label
  */
 void SimControlPanel::updateTerrainLabel() {
-  ui->terrainFileLabel->setText(QString(_terrainFileName.c_str()));
+  QFileInfo info = QFileInfo(QString(_terrainFileName.c_str()));
+  ui->terrainFileLabel->setText(info.fileName());
 }
 
 /*!
