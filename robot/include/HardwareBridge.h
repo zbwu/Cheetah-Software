@@ -58,7 +58,10 @@ class HardwareBridge {
                               const control_parameter_request_lcmt* msg);
 
   void publishVisualizationLCM();
+
+  #ifdef SBUS_CONTROLLER
   void run_sbus();
+  #endif
 
  protected:
   PeriodicTaskManager taskManager;
@@ -98,19 +101,23 @@ class MiniCheetahHardwareBridge : public HardwareBridge {
   void runSpi();
   void initHardware();
   void run();
+#ifdef USE_MICROSTRAIN
   void runMicrostrain();
   void logMicrostrain();
+#endif
   void abort(const std::string& reason);
   void abort(const char* reason);
 
  private:
   VectorNavData _vectorNavData;
   lcm::LCM _spiLcm;
+#ifdef USE_MICROSTRAIN
   lcm::LCM _microstrainLcm;
   std::thread _microstrainThread;
   LordImu _microstrainImu;
   microstrain_lcmt _microstrainData;
   bool _microstrainInit = false;
+#endif
   bool _load_parameters_from_file;
 };
 

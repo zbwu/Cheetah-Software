@@ -211,8 +211,9 @@ void RobotRunner::setupStep() {
     _cheaterModeEnabled = false;
   }
 
+#ifdef SBUS_CONTROLLER
   get_rc_control_settings(&rc_control);
-
+#endif
   // todo safety checks, sanity checks, etc...
 }
 

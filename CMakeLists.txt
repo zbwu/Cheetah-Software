@@ -27,7 +27,7 @@ if(MINI_CHEETAH_BUILD)
   set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb -Wall \
   -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
   -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
-  -Wshadow -Wsign-promo -Werror")
+  -Wsign-promo -Werror")
   set(CMAKE_C_FLAGS "-O3  -ggdb -std=gnu99 -I.")
   message("**** Mini-Cheetah build enabled ****")
 else(MINI_CHEETAH_BUILD)
@@ -39,15 +39,16 @@ else(MINI_CHEETAH_BUILD)
     set(CMAKE_CXX_FLAGS "-O3 -no-pie -march=native -ggdb -Wall \
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
     -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
-    -Wshadow -Wsign-promo -Werror")
+    -Wshadow -Wsign-promo")
   elseif(APPLE)
     set(CMAKE_CXX_FLAGS "-O3 -march=native -ggdb -Wall \
     -Wextra -Wcast-align -Wdisabled-optimization -Wformat=2 \
     -Winit-self -Wmissing-include-dirs -Woverloaded-virtual \
     -Wshadow -Wsign-promo")
-    include_directories("third-party/lcm")   # lcm includes
-    include_directories("third-party/eigen")   # eigen3 includes
   endif()
+
+  include_directories("third-party/lcm")   # lcm includes
+  include_directories("third-party/eigen")   # eigen3 includes
 
   set(CMAKE_C_FLAGS "-O3  -ggdb  -march=native -std=gnu99 -I.")
   message("**** Mini-Cheetah build disabled ****")

@@ -69,7 +69,9 @@ void FSM_State_Locomotion<T>::run() {
   LocomotionControlStep();
 }
 
+#ifdef SBUS_CONTROLLER
 extern rc_control_settings rc_control;
+#endif
 
 /**
  * Manages which states can be transitioned into either by the user
@@ -129,7 +131,9 @@ FSM_StateName FSM_State_Locomotion<T>::checkTransition() {
   } else {
     this->nextStateName = FSM_StateName::RECOVERY_STAND;
     this->transitionDuration = 0.;
+#ifdef SBUS_CONTROLLER
     rc_control.mode = RC_mode::RECOVERY_STAND;
+#endif
   }
 
 

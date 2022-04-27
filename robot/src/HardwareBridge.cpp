@@ -14,14 +14,19 @@
 #include "Configuration.h"
 
 #include "HardwareBridge.h"
+#ifdef SBUS_CONTROLLER
 //#include "rt/rt_rc_interface.h"
 #include "rt/rt_sbus.h"
+#endif
 #include "rt/rt_spi.h"
+#ifdef USE_MICROSTRAIN
 #include "rt/rt_vectornav.h"
+#endif
+#ifdef CHEETAH3
 #include "rt/rt_ethercat.h"
+#endif
 #include "Utilities/Utilities_print.h"
 
-#define USE_MICROSTRAIN
 
 /*!
  * If an error occurs during initialization, before motors are enabled, print
@@ -223,10 +228,17 @@ void HardwareBridge::handleControlParameter(
 }
 
 
+#ifdef USE_MICROSTRAIN
 MiniCheetahHardwareBridge::MiniCheetahHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file)
     : HardwareBridge(robot_ctrl), _spiLcm(getLcmUrl(255)), _microstrainLcm(getLcmUrl(255)) {
   _load_parameters_from_file = load_parameters_from_file;
 }
+#else
+MiniCheetahHardwareBridge::MiniCheetahHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file)
+    : HardwareBridge(robot_ctrl), _spiLcm(getLcmUrl(255)) {
+  _load_parameters_from_file = load_parameters_from_file;
+}
+#endif
 
 /*!
  * Main method for Mini Cheetah hardware
@@ -311,9 +323,11 @@ void MiniCheetahHardwareBridge::run() {
       &taskManager, .002, "spi", &MiniCheetahHardwareBridge::runSpi, this);
   spiTask.start();
 
+#ifdef USE_MICROSTRAIN
   // microstrain
   if(_microstrainInit)
     _microstrainThread = std::thread(&MiniCheetahHardwareBridge::runMicrostrain, this);
+#endif
 
   // robot controller start
   _robotRunner->start();
@@ -324,16 +338,20 @@ void MiniCheetahHardwareBridge::run() {
       &MiniCheetahHardwareBridge::publishVisualizationLCM, this);
   visualizationLCMTask.start();
 
+#ifdef SBUS_CONTROLLER
   // rc controller
   _port = init_sbus(false);  // Not Simulation
   PeriodicMemberFunction<HardwareBridge> sbusTask(
       &taskManager, .005, "rc_controller", &HardwareBridge::run_sbus, this);
   sbusTask.start();
+#endif
 
+#ifdef USE_MICROSTRAIN
   // temporary hack: microstrain logger
   PeriodicMemberFunction<MiniCheetahHardwareBridge> microstrainLogger(
       &taskManager, .001, "microstrain-logger", &MiniCheetahHardwareBridge::logMicrostrain, this);
   microstrainLogger.start();
+#endif
 
   for (;;) {
     usleep(1000000);
@@ -341,6 +359,7 @@ void MiniCheetahHardwareBridge::run() {
   }
 }
 
+#ifdef SBUS_CONTROLLER
 /*!
  * Receive RC with SBUS
  */
@@ -352,44 +371,45 @@ void HardwareBridge::run_sbus() {
     }
   }
 }
+#endif
 
+#ifdef USE_MICROSTRAIN
 void MiniCheetahHardwareBridge::runMicrostrain() {
   while(true) {
     _microstrainImu.run();
 
-#ifdef USE_MICROSTRAIN
     _vectorNavData.accelerometer = _microstrainImu.acc;
     _vectorNavData.quat[0] = _microstrainImu.quat[1];
     _vectorNavData.quat[1] = _microstrainImu.quat[2];
     _vectorNavData.quat[2] = _microstrainImu.quat[3];
     _vectorNavData.quat[3] = _microstrainImu.quat[0];
     _vectorNavData.gyro = _microstrainImu.gyro;
-#endif
   }
-
-
 }
 
 void MiniCheetahHardwareBridge::logMicrostrain() {
   _microstrainImu.updateLCM(&_microstrainData);
   _microstrainLcm.publish("microstrain", &_microstrainData);
 }
+#endif
 
 /*!
  * Initialize Mini Cheetah specific hardware
  */
 void MiniCheetahHardwareBridge::initHardware() {
+#ifdef USE_MICROSTRAIN
   _vectorNavData.quat << 1, 0, 0, 0;
-#ifndef USE_MICROSTRAIN
+
   printf("[MiniCheetahHardware] Init vectornav\n");
   if (!init_vectornav(&_vectorNavData)) {
     printf("Vectornav failed to initialize\n");
     //initError("failed to initialize vectornav!\n", false);
   }
+
+  _microstrainInit = _microstrainImu.tryInit(0, 921600);
 #endif
 
   init_spi();
-  _microstrainInit = _microstrainImu.tryInit(0, 921600);
 }
 
 #ifdef CHEETAH3

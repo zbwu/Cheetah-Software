@@ -252,13 +252,16 @@ void SimulationBridge::runRobotControl() {
     _firstControllerRun = false;
 
 #ifdef linux
+#ifdef SBUS_CONTROLLER
     sbus_thread = new std::thread(&SimulationBridge::run_sbus, this);
+#endif
 #endif
   }
   _robotRunner->run();
 }
 
 #ifdef linux
+#ifdef SBUS_CONTROLLER
 /*!
  * Run the RC receive thread
  */
@@ -275,4 +278,5 @@ void SimulationBridge::run_sbus() {
     usleep(5000);
   }
 }
+#endif
 #endif

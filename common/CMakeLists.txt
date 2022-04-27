@@ -31,6 +31,7 @@ target_link_libraries(biomimetics yaml-cpp JCQP osqp)
 add_library(biomimetics-static STATIC ${sources})
 target_link_libraries(biomimetics-static yaml-cpp)
 
+if(COMMON_TEST)
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
 # Pull in Google Test
 include(CTest)
@@ -64,6 +65,7 @@ target_link_libraries(test-common JCQP)
 add_test(NAME example_test COMMAND test-common)
 
 endif(CMAKE_SYSTEM_NAME MATCHES Linux)
+endif(COMMON_TEST)
 
 # Our libraries
 add_subdirectory(FootstepPlanner)

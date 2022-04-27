@@ -155,7 +155,7 @@ class SharedMemorySemaphore {
     ts.tv_sec += seconds;
     ts.tv_sec += ts.tv_nsec / 1000000000;
     ts.tv_nsec %= 1000000000;
-    return (sem_timedwait(&_sem, &ts) == 0);
+    return (sem_timedwait(_sem, &ts) == 0);
 #else
     u64 count = 40; // 40ns, 80ns, 160ns...
     u64 usec = seconds * 1000000 + nanoseconds / 1000;

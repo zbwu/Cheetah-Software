@@ -33,7 +33,9 @@ class SimulationBridge {
     delete _robotRunner;
   }
   #ifdef linux
+  #ifdef SBUS_CONTROLLER
   void run_sbus();
+  #endif
   #endif
 
  private:
@@ -49,7 +51,9 @@ class SimulationBridge {
   u64 _iterations = 0;
 
 #ifdef linux
+#ifdef SBUS_CONTROLLER
   std::thread* sbus_thread;
+#endif
 #endif
 };
 
