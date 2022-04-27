@@ -1,7 +1,7 @@
 #ifndef PARAMETER_HANDLER
 #define PARAMETER_HANDLER
 
-#include <dynacore_yaml-cpp/yaml.h>
+#include <yaml-cpp/yaml.h>
 #include <string>
 #include <vector>
 
@@ -95,7 +95,7 @@ public:
   }
 
 protected:
-  dynacore_YAML::Node config_;
+  YAML::Node config_;
 
 private:
   bool fileLoaded = false;

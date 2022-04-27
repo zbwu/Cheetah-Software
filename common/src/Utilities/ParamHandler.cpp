@@ -1,9 +1,9 @@
-#include "ParamHandler.hpp"
+#include "Utilities/ParamHandler.hpp"
 #include <iostream>
 
 ParamHandler::ParamHandler(const std::string &file_name) {
   try {
-    config_ = dynacore_YAML::LoadFile(file_name);
+    config_ = YAML::LoadFile(file_name);
     fileLoaded = true;
   } catch (std::exception& e) {
     fileLoaded = false;
