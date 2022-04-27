@@ -1,7 +1,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "ParamHandler.hpp"
+#include "Utilities/ParamHandler.hpp"
 #include "Utilities/utilities.h"
 
 TEST(YAML, yaml_category_read) {

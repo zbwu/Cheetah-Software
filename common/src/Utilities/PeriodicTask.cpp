@@ -107,8 +107,9 @@ void PeriodicTask::loopFunction() {
   timerSpec.it_interval.tv_nsec = nanoseconds;
 
   timerfd_settime(timerFd, 0, &timerSpec, nullptr);
-#endif
+
   unsigned long long missed = 0;
+#endif
 
   printf("[PeriodicTask] Start %s (%d s, %d ns)\n", _name.c_str(), seconds,
          nanoseconds);

@@ -127,8 +127,10 @@ private:
   void recompute_timing(int iterations_per_mpc);
   void updateMPCIfNeeded(int* mpcTable, ControlFSMData<float>& data, bool omniMode);
   void solveDenseMPC(int *mpcTable, ControlFSMData<float> &data);
+#ifdef LOCO_SPARSE_MPC
   void solveSparseMPC(int *mpcTable, ControlFSMData<float> &data);
   void initSparseMPC();
+#endif
   int iterationsBetweenMPC;
   int horizonLength;
   int default_iterations_between_mpc;
@@ -161,7 +163,9 @@ private:
 
   vectorAligned<Vec12<double>> _sparseTrajectory;
 
+#ifdef LOCO_SPARSE_MPC
   SparseCMPC _sparseCMPC;
+#endif
 
 };
 

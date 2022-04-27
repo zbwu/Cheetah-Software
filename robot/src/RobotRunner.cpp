@@ -13,7 +13,6 @@
 #include "Dynamics/Cheetah3.h"
 #include "Dynamics/MiniCheetah.h"
 #include "Utilities/Utilities_print.h"
-#include "ParamHandler.hpp"
 #include "Utilities/Timer.h"
 #include "Controllers/PositionVelocityEstimator.h"
 //#include "rt/rt_interface_lcm.h"
@@ -35,10 +34,22 @@ void RobotRunner::init() {
   printf("[RobotRunner] initialize\n");
 
   // Build the appropriate Quadruped object
-  if (robotType == RobotType::MINI_CHEETAH) {
+  switch (robotType)
+  {
+  case RobotType::MINI_CHEETAH:
     _quadruped = buildMiniCheetah<float>();
-  } else {
+    break;
+  case RobotType::CYBERDOG:
+    _quadruped = buildMiniCheetah<float>();
+    break;
+#ifdef CHEETAH3
+  case RobotType::CHEETAH_3:
     _quadruped = buildCheetah3<float>();
+    break;
+#endif
+  default:
+    printf("unknown robot type\n");
+    break;
   }
 
   // Initialize the model and robot data
@@ -99,11 +110,12 @@ void RobotRunner::run() {
     _legController->setEnabled(false);
   } else if (40 < count_ini && count_ini < 50) {
     _legController->setEnabled(false);
-  } else {
+  } else { // 10-20, 30-40, 50-max
     _legController->setEnabled(true);
 
-    if( (rc_control.mode == 0) && controlParameters->use_rc ) {
-      if(count_ini%1000 ==0)   printf("ESTOP!\n");
+    if( (rc_control.mode == RC_mode::OFF) && controlParameters->use_rc ) {
+      if(count_ini%1000 == 0)
+        printf("ESTOP!\n");
       for (int leg = 0; leg < 4; leg++) {
         _legController->commands[leg].zero();
       }
@@ -117,9 +129,11 @@ void RobotRunner::run() {
         if (robotType == RobotType::MINI_CHEETAH) {
           kpMat << 5, 0, 0, 0, 5, 0, 0, 0, 5;
           kdMat << 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1;
+#ifdef CHEETAH3
         } else if (robotType == RobotType::CHEETAH_3) {
           kpMat << 50, 0, 0, 0, 50, 0, 0, 0, 50;
           kdMat << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+#endif
         } else {
           assert(false);
         } 
@@ -165,8 +179,10 @@ void RobotRunner::setupStep() {
   // Update the leg data
   if (robotType == RobotType::MINI_CHEETAH) {
     _legController->updateData(spiData);
+#ifdef CHEETAH3
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateData(tiBoardData);
+#endif
   } else {
     assert(false);
   }
@@ -174,7 +190,9 @@ void RobotRunner::setupStep() {
   // Setup the leg controller for a new iteration
   _legController->zeroCommand();
   _legController->setEnabled(true);
+#ifdef CHEETAH3
   _legController->setMaxTorqueCheetah3(208.5);
+#endif
 
   // state estimator
   // check transition to cheater mode:
@@ -204,8 +222,10 @@ void RobotRunner::setupStep() {
 void RobotRunner::finalizeStep() {
   if (robotType == RobotType::MINI_CHEETAH) {
     _legController->updateCommand(spiCommand);
+#ifdef CHEETAH3
   } else if (robotType == RobotType::CHEETAH_3) {
     _legController->updateCommand(tiBoardCommand);
+#endif
   } else {
     assert(false);
   }

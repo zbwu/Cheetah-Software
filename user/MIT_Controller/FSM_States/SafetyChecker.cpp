@@ -128,16 +128,19 @@ bool SafetyChecker<T>::checkForceFeedForward() {
   T maxVerticalForce = 0;
 
   // Maximum force limits for each robot
-  if (data->_quadruped->_robotType == RobotType::CHEETAH_3) {
-    maxLateralForce = 1800;
-    maxVerticalForce = 1800;
-
-  } else if (data->_quadruped->_robotType == RobotType::MINI_CHEETAH) {
+  if (data->_quadruped->_robotType == RobotType::MINI_CHEETAH) {
     maxLateralForce = 350;
     maxVerticalForce = 350;
+#ifdef CHEETAH3
+  } else if (data->_quadruped->_robotType == RobotType::CHEETAH_3) {
+    maxLateralForce = 1800;
+    maxVerticalForce = 1800;
+#endif
+  } else {
+    assert(false);
   }
 
-  // Check all of the legs
+    // Check all of the legs
   for (int leg = 0; leg < 4; leg++) {
     // Limit the lateral forces in +x body frame
     if (data->_legController->commands[leg].forceFeedForward(0) >

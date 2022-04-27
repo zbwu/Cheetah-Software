@@ -386,8 +386,11 @@ void solve_mpc(update_data_t* update, problem_setup* setup)
   qH = 2*(B_qp.transpose()*S*B_qp + update->alpha*eye_12h);
   qg = 2*B_qp.transpose()*S*(A_qp*x_0 - X_d);
 
+#ifdef LOCO_JCQP
   QpProblem<double> jcqp(setup->horizon*12, setup->horizon*20);
+#endif
   if(update->use_jcqp == 1) {
+#ifdef LOCO_JCQP
     jcqp.A = fmat.cast<double>();
     jcqp.P = qH.cast<double>();
     jcqp.q = qg.cast<double>();
@@ -401,6 +404,7 @@ void solve_mpc(update_data_t* update, problem_setup* setup)
     jcqp.settings.rho = update->rho;
     jcqp.settings.maxIterations = update->max_iterations;
     jcqp.runFromDense(update->max_iterations, true, false);
+#endif
   } else {
 
 
@@ -542,6 +546,7 @@ void solve_mpc(update_data_t* update, problem_setup* setup)
           }
         }
       } else { // use jcqp == 2
+#ifdef LOCO_JCQP
         QpProblem<double> reducedProblem(new_vars, new_cons);
 
         reducedProblem.A = DenseMatrix<double>(new_cons, new_vars);
@@ -602,6 +607,7 @@ void solve_mpc(update_data_t* update, problem_setup* setup)
             vc++;
           }
         }
+#endif
       }
 
     }
@@ -609,12 +615,13 @@ void solve_mpc(update_data_t* update, problem_setup* setup)
 
 
 
-
+#ifdef LOCO_JCQP
   if(update->use_jcqp == 1) {
     for(int i = 0; i < 12 * setup->horizon; i++) {
       q_soln[i] = jcqp.getSolution()[i];
     }
   }
+#endif
 
 
 

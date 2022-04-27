@@ -555,7 +555,7 @@ namespace GolDIdnani{
   template <typename T>
   std::istream& operator>>(std::istream& is, GVect<T>& v)
   {
-    int elements;
+    unsigned int elements;
     char comma;
     is >> elements;
     v.resize(elements);
@@ -1627,7 +1627,7 @@ namespace GolDIdnani{
   template <typename T>
   std::istream& operator>>(std::istream& is, GMatr<T>& m)
   {
-    int rows, cols;
+    unsigned int rows, cols;
     char comma;
     is >> rows >> cols;
     m.resize(rows, cols);
@@ -1986,7 +1986,7 @@ namespace GolDIdnani{
     if (b.size() != n)
       throw std::logic_error("Error in LU solve: b vector must be of the same dimensions of LU matrix");
     GVect<T> x((T)0.0, n);
-    int i, j, p;
+    unsigned int i, j, p;
     T sum;
 
     p = index[0];

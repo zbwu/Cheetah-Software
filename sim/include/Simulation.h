@@ -140,7 +140,9 @@ class Simulation {
   SpiCommand _spiCommand;
   SpiData _spiData;
   SpineBoard _spineBoards[4];
+#ifdef CHEETAH3
   TI_BoardControl _tiBoards[4];
+#endif
   RobotType _robot;
   lcm::LCM* _lcm = nullptr;
 

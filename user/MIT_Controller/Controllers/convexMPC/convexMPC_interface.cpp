@@ -110,12 +110,18 @@ void update_solver_settings(int max_iter, double rho, double sigma, double solve
   update.sigma = sigma;
   update.solver_alpha = solver_alpha;
   update.terminate = terminate;
+#ifdef LOCO_JCQP
   if(use_jcqp > 1.5)
     update.use_jcqp = 2;
   else if(use_jcqp > 0.5)
     update.use_jcqp = 1;
   else
     update.use_jcqp = 0;
+#else
+  if (use_jcqp > 0)
+    printf("The current build does not support JCQP\n");
+  update.use_jcqp = 0;
+#endif
 }
 
 void update_problem_data_floats(float* p, float* v, float* q, float* w,

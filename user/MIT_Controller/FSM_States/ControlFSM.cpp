@@ -49,9 +49,13 @@ ControlFSM<T>::ControlFSM(Quadruped<T>* _quadruped,
   statesList.balanceStand = new FSM_State_BalanceStand<T>(&data);
   statesList.locomotion = new FSM_State_Locomotion<T>(&data);
   statesList.recoveryStand = new FSM_State_RecoveryStand<T>(&data);
+#ifdef LOCO_VISION
   statesList.vision = new FSM_State_Vision<T>(&data);
+#endif
+#ifdef LOCO_BCAKFLIP
   statesList.backflip = new FSM_State_BackFlip<T>(&data);
   statesList.frontJump = new FSM_State_FrontJump<T>(&data);
+#endif
 
   safetyChecker = new SafetyChecker<T>(&data);
 
@@ -264,14 +268,18 @@ FSM_State<T>* ControlFSM<T>::getNextState(FSM_StateName stateName) {
     case FSM_StateName::RECOVERY_STAND:
       return statesList.recoveryStand;
 
+#ifdef LOCO_VISION
     case FSM_StateName::VISION:
       return statesList.vision;
+#endif
 
+#ifdef LOCO_BACKFLIP
     case FSM_StateName::BACKFLIP:
       return statesList.backflip;
 
     case FSM_StateName::FRONTJUMP:
       return statesList.frontJump;
+#endif
 
     default:
       return statesList.invalid;

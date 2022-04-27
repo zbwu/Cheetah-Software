@@ -3,15 +3,33 @@ include_directories(".")
 include_directories("include/" )                 # common includes
 include_directories("../lcm-types/cpp/")
 include_directories("../third-party/osqp/include")       # osqp includes
-include_directories("../third-party/ParamHandler")
+include_directories("../third-party/yaml-cpp/include")
+include_directories("../third-party/JCQP")
 include_directories("FootstepPlanner")
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
-file(GLOB_RECURSE sources "src/*.cpp")                   # common library cpp files
+
+# common library cpp files
+file(GLOB sources
+    "src/Collision/*.cpp"
+    "src/ControlParameters/*.cpp"
+    "src/Controllers/*.cpp"
+    "src/Dynamics/*.cpp"
+    "src/SimUtilities/*.cpp"
+    "src/Utilities/*.cpp")
+
+if(LOCO_SPARSE_MPC)
+    file(GLOB sparse_mpc_sources
+        "src/SparseCMPC/*.cpp")
+    list(APPEND sources ${sparse_mpc_sources})
+endif(LOCO_SPARSE_MPC)
 
 # Library
 add_library(biomimetics SHARED ${sources})       # produce a library used by sim/robot
-target_link_libraries(biomimetics dynacore_param_handler JCQP osqp)
+target_link_libraries(biomimetics yaml-cpp JCQP osqp)
+
+add_library(biomimetics-static STATIC ${sources})
+target_link_libraries(biomimetics-static yaml-cpp)
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
 # Pull in Google Test
@@ -38,7 +56,7 @@ endif()
 # Test
 file(GLOB_RECURSE test_sources "test/test_*.cpp")             # test cpp files
 add_executable(test-common ${test_sources})
-target_link_libraries(test-common gtest gmock_main lcm rt osqp dynacore_param_handler pthread biomimetics)
+target_link_libraries(test-common gtest gmock_main lcm rt osqp pthread biomimetics)
 target_link_libraries(test-common Goldfarb_Optimizer)
 target_link_libraries(test-common JCQP)
 

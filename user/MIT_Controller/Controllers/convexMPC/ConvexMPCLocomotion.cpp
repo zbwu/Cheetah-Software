@@ -53,7 +53,9 @@ ConvexMPCLocomotion::ConvexMPCLocomotion(float _dt, int _iterations_between_mpc,
   for(int i = 0; i < 4; i++)
     firstSwing[i] = true;
 
+#ifdef LOCO_SPARSE_MPC
   initSparseMPC();
+#endif
 
    pBody_des.setZero();
    vBody_des.setZero();
@@ -73,8 +75,10 @@ void ConvexMPCLocomotion::recompute_timing(int iterations_per_mpc) {
 void ConvexMPCLocomotion::_SetupCommand(ControlFSMData<float> & data){
   if(data._quadruped->_robotType == RobotType::MINI_CHEETAH){
     _body_height = 0.29;
+#ifdef CHEETAH3
   }else if(data._quadruped->_robotType == RobotType::CHEETAH_3){
     _body_height = 0.45;
+#endif
   }else{
     assert(false);
   }
@@ -558,7 +562,11 @@ void ConvexMPCLocomotion::updateMPCIfNeeded(int *mpcTable, ControlFSMData<float>
     Timer solveTimer;
 
     if(_parameters->cmpc_use_sparse > 0.5) {
+#ifdef LOCO_SPARSE_MPC
       solveSparseMPC(mpcTable, data);
+#else
+      printf("The current build does not support SparseMPC/OSQP\n");
+#endif
     } else {
       solveDenseMPC(mpcTable, data);
     }
@@ -637,6 +645,7 @@ void ConvexMPCLocomotion::solveDenseMPC(int *mpcTable, ControlFSMData<float> &da
   }
 }
 
+#ifdef LOCO_SPARSE_MPC
 void ConvexMPCLocomotion::solveSparseMPC(int *mpcTable, ControlFSMData<float> &data) {
   // X0, contact trajectory, state trajectory, feet, get result!
   (void)mpcTable;
@@ -701,4 +710,5 @@ void ConvexMPCLocomotion::initSparseMPC() {
 
   _sparseTrajectory.resize(horizonLength);
 }
+#endif
 

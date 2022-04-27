@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS "-O3 -no-pie -ggdb ") # no werror here!
 
 
 add_library (Goldfarb_Optimizer SHARED ${headers} ${sources})
-#add_library (Goldfarb_Optimizer STATIC ${headers} ${sources})
+add_library (Goldfarb_Optimizer-static STATIC ${headers} ${sources})
 
 #install(TARGETS Goldfarb_Optimizer DESTINATION "${INSTALL_LIB_DIR}")
 #install(FILES ${headers} DESTINATION

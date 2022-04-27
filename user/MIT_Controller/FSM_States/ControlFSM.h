@@ -41,9 +41,13 @@ struct FSM_StatesList {
   FSM_State_BalanceStand<T>* balanceStand;
   FSM_State_Locomotion<T>* locomotion;
   FSM_State_RecoveryStand<T>* recoveryStand;
+#ifdef LOCO_VISION
   FSM_State_Vision<T>* vision;
+#endif
+#ifdef LOCO_BCAKFLIP
   FSM_State_BackFlip<T>* backflip;
   FSM_State_FrontJump<T>* frontJump;
+#endif
 };
 
 

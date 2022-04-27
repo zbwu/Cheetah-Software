@@ -232,13 +232,16 @@ void SimulationBridge::runRobotControl() {
     _robotRunner->driverCommand =
         &_sharedMemory.getObject().simToRobot.gamepadCommand;
     _robotRunner->spiData = &_sharedMemory.getObject().simToRobot.spiData;
+#ifdef CHEETAH3
     _robotRunner->tiBoardData = _sharedMemory.getObject().simToRobot.tiBoardData;
+#endif
     _robotRunner->robotType = _robot;
     _robotRunner->vectorNavData = &_sharedMemory.getObject().simToRobot.vectorNav;
     _robotRunner->cheaterState = &_sharedMemory.getObject().simToRobot.cheaterState;
     _robotRunner->spiCommand = &_sharedMemory.getObject().robotToSim.spiCommand;
-    _robotRunner->tiBoardCommand =
-        _sharedMemory.getObject().robotToSim.tiBoardCommand;
+#ifdef CHEETAH3
+    _robotRunner->tiBoardCommand = _sharedMemory.getObject().robotToSim.tiBoardCommand;
+#endif
     _robotRunner->controlParameters = &_robotParams;
     _robotRunner->visualizationData =
         &_sharedMemory.getObject().robotToSim.visualizationData;

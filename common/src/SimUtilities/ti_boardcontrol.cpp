@@ -4,6 +4,7 @@
  *  This is mostly a copy of the exact code that runs on the TI Board
  */
 
+#ifdef CHEETAH3
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -179,3 +180,4 @@ void TI_BoardControl::kinematics(const float side_sign, const float q[3],
     }
   }
 }
+#endif

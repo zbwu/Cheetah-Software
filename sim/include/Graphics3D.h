@@ -193,6 +193,7 @@ class Graphics3D : public QOpenGLWidget, protected QOpenGLFunctions {
 
   bool _pause = false;
 
+#ifdef LOCO_VISION
   // Vision data visualization
   Vec3<float> _points[5001];
   size_t _num_points = 5001;
@@ -218,6 +219,7 @@ class Graphics3D : public QOpenGLWidget, protected QOpenGLFunctions {
   void _drawHeightMap();
   void _drawVelArrow();
   void _drawObstacleField();
+#endif
 };
 
 #endif  // PROJECT_GRAPHICS3D_H

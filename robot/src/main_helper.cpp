@@ -22,10 +22,19 @@ MasterConfig gMasterConfig;
 void printUsage() {
   printf(
       "Usage: robot [robot-id] [sim-or-robot] [parameters-from-file]\n"
-      "\twhere robot-id:     3 for cheetah 3, m for mini-cheetah, c for cyberdog\n"
-      "\t      sim-or-robot: s for sim, r for robot\n"
-      "\t      param-file:   f for loading parameters from file, l (or nothing) for LCM\n"
-      "                      this option can only be used in robot mode\n");
+      "\trobot-id:\n"
+#ifdef CHEETAH3
+      "\t                3 for cheetah 3\n"
+#endif
+      "\t                m for mini-cheetah\n"
+      "\t                c for cyberdog\n"
+      "\tsim-or-robot:\n"
+      "\t                s for sim\n"
+      "\t                r for robot\n"
+      "\tparam-file:\n"
+      "\t                f for loading parameters from file\n"
+      "\t                l (or nothing) for LCM\n"
+      "\t                  this option can only be used in robot mode\n");
 }
 
 /*!
@@ -37,12 +46,14 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     return EXIT_FAILURE;
   }
 
-  if (argv[1][0] == '3') {
-    gMasterConfig._robot = RobotType::CHEETAH_3;
-  } else if (argv[1][0] == 'm') {
+  if (argv[1][0] == 'm') {
     gMasterConfig._robot = RobotType::MINI_CHEETAH;
   } else if (argv[1][0] == 'c') {
     gMasterConfig._robot = RobotType::CYBERDOG;
+#ifdef CHEETAH3
+  } else if (argv[1][0] == '3') {
+    gMasterConfig._robot = RobotType::CHEETAH_3;
+#endif
   } else {
     printUsage();
     return EXIT_FAILURE;
@@ -65,10 +76,25 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     printf("Load parameters from network\n");
   }
 
+  const char *robotName = NULL;
+  switch (gMasterConfig._robot) {
+    case RobotType::MINI_CHEETAH:
+      robotName = "Mini Cheetah";
+      break;
+    case RobotType::CYBERDOG:
+      robotName = "CyberDog";
+      break;
+#ifdef CHEETAH3
+    case RobotType::CHEETAH_3:
+      robotName = "Cheetah 3";
+      break;
+#endif
+    default:
+      robotName = "unknown";
+  }
+
   printf("[Quadruped] Cheetah Software\n");
-  printf("        Quadruped:  %s\n",
-         gMasterConfig._robot == RobotType::MINI_CHEETAH ? "Mini Cheetah"
-                                                         : "Cheetah 3");
+  printf("        Quadruped:  %s\n", robotName);
   printf("        Driver: %s\n", gMasterConfig.simulated
                                      ? "Development Simulation Driver"
                                      : "Quadruped Driver");
@@ -82,10 +108,14 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     if (gMasterConfig._robot == RobotType::MINI_CHEETAH) {
       SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
       simulationBridge.run();
-      printf("[Quadruped] SimDriver run() has finished!\n");
+    } else if (gMasterConfig._robot == RobotType::CYBERDOG) {
+      SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
+      simulationBridge.run();
+#ifdef CHEETAH3
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
       SimulationBridge simulationBridge(gMasterConfig._robot, ctrl);
       simulationBridge.run();
+#endif
     } else {
       printf("[ERROR] unknown robot\n");
       assert(false);
@@ -95,7 +125,9 @@ int main_helper(int argc, char** argv, RobotController* ctrl) {
     if (gMasterConfig._robot == RobotType::MINI_CHEETAH) {
       MiniCheetahHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
       hw.run();
-      printf("[Quadruped] SimDriver run() has finished!\n");
+    } else if (gMasterConfig._robot == RobotType::CYBERDOG) {
+      MiniCheetahHardwareBridge hw(ctrl, gMasterConfig.load_from_file);
+      hw.run();
 #ifdef CHEETAH3
     } else if (gMasterConfig._robot == RobotType::CHEETAH_3) {
       Cheetah3HardwareBridge hw(ctrl);

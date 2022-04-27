@@ -106,7 +106,8 @@ class PrintTaskStatus : public PeriodicTask {
       : PeriodicTask(tm, period, "print-tasks"), _tm(tm) {}
   void run() override { 
     // DH: Disable printing
-    //_tm->printStatus(); 
+    //_tm->printStatus();
+    (void) _tm; // ignored unused warning
   }
 
   void init() override {}

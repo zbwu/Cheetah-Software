@@ -28,12 +28,12 @@ QT6_WRAP_CPP(tst_hdr_moc ${QOBJECT_HEADERS})
 include_directories("include/")
 include_directories("../common/include/")
 include_directories("../lcm-types/cpp")
-include_directories("../third-party/ParamHandler")
+include_directories("../third-party/yaml-cpp/include")
 include_directories(${CMAKE_BINARY_DIR})
 file(GLOB sources "src/*.cpp")
 
 add_executable(sim ${sources} ${tst_hdr_moc})
-target_link_libraries(sim biomimetics pthread lcm dynacore_param_handler 
+target_link_libraries(sim biomimetics-static lcm-static
     Qt6::Gui Qt6::Core Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets
     ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES})
 

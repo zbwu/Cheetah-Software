@@ -49,8 +49,10 @@ class RobotRunner : public PeriodicTask {
   CheaterState<double>* cheaterState;
   SpiData* spiData;
   SpiCommand* spiCommand;
+#ifdef CHEETAH3
   TiBoardCommand* tiBoardCommand;
   TiBoardData* tiBoardData;
+#endif
   RobotControlParameters* controlParameters;
   VisualizationData* visualizationData;
   CheetahVisualization* cheetahMainVisualization;

@@ -8,6 +8,7 @@
 /*!
  * Printf, but with color.
  */
+__attribute__((__format__ (__printf__, 2, 0)))
 void printf_color(PrintColor color, const char *fmt, ...) {
   auto color_id = (uint32_t)color;
   if (color_id) printf("\033[1;%dm", (uint32_t)color + 30);
@@ -21,6 +22,7 @@ void printf_color(PrintColor color, const char *fmt, ...) {
 /*!
  * fprintf, but with color (used to print color to STDERR)
  */
+__attribute__((__format__ (__printf__, 3, 0)))
 void fprintf_color(PrintColor color, FILE* stream, const char *fmt, ...) {
   auto color_id = (uint32_t)color;
   if (color_id) fprintf(stream, "\033[1;%dm", (uint32_t)color + 30);

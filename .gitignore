@@ -1,6 +1,6 @@
 build/
 mc-build/
-cmake-build-debug/
+cmake-build-*
 .idea/
 .vscode/
 lcm-types/cheetahlcm

@@ -9,6 +9,7 @@
 
 #include "cTypes.h"
 
+#ifdef CHEETAH3
 /*!
  * Command sent to TI board
  */
@@ -82,5 +83,6 @@ class TI_BoardControl {
   float _l1, _l2, _l3;
   bool link_lengths_set = false;
 };
+#endif
 
 #endif  // TI_BOARDCONTROL_H

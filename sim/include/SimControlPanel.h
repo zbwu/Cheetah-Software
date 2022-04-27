@@ -13,8 +13,8 @@
 #include "RobotInterface.h"
 #include "Simulation.h"
 
-#define DEFAULT_TERRAIN_FILE "default-terrain.yaml"
-#define DEFAULT_USER_FILE "default-user-parameters-file.yaml"
+#define DEFAULT_TERRAIN_FILE "/default-terrain.yaml"
+#define DEFAULT_USER_FILE "/default-user-parameters-file.yaml"
 
 #include <lcm/lcm-cpp.hpp>
 #include <src/MiniCheetahDebug.h>
@@ -131,8 +131,10 @@ public slots:
   bool _firstStart = true;
   bool _ignoreTableCallbacks = false;
   bool _loadedUserSettings = false;
+  bool _startSpiDebug = true;
   std::string _terrainFileName;
 
+#ifdef LOCO_VISION
   // Vision data Drawing
   void handleHeightmapLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan, 
       const heightmap_t* msg);
@@ -151,19 +153,26 @@ public slots:
   void handleVelocityCMDLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan, 
       const velocity_visual_t* msg);
   void ctrlVisionLCMThread(){ while(true){ _ctrlVisionLCM.handle();  } }
+#endif
 
-  void handleSpiDebug(const lcm::ReceiveBuffer* rbuf, const std::string& chan, const leg_control_data_lcmt* msg);
+  void handleSpiDebug(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
+      const leg_control_data_lcmt* msg);
+  void miniCheetahDebugLCMThread(){ while(_startSpiDebug){ _miniCheetahDebugLCM.handleTimeout(1000);  } }
 
+#ifdef LOCO_VISION
   lcm::LCM _heightmapLCM;
   lcm::LCM _pointsLCM;
   lcm::LCM _indexmapLCM;
   lcm::LCM _ctrlVisionLCM;
+#endif
   lcm::LCM _miniCheetahDebugLCM;
 
+#ifdef LOCO_VISION
   std::thread _pointsLCMThread;
   std::thread _heightmapLCMThread;
   std::thread _indexmapLCMThread;
   std::thread _ctrlVisionLCMThread;
+#endif
   std::thread _miniCheetahDebugLCMThread;
 
   MiniCheetahDebug _mcDebugWindow;

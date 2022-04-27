@@ -72,8 +72,10 @@ class HardwareBridge {
   SpiData _spiData;
   SpiCommand _spiCommand;
 
+#ifdef CHEETAH3
   TiBoardCommand _tiBoardCommand[4];
   TiBoardData _tiBoardData[4];
+#endif
 
   bool _firstRun = true;
   RobotRunner* _robotRunner = nullptr;

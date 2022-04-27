@@ -29,7 +29,7 @@ struct LegControllerCommand {
   void zero();
 
   Vec3<T> tauFeedForward, forceFeedForward, qDes, qdDes, pDes, vDes;
-  Mat3<T> kpCartesian, kdCartesian, kpJoint, kdJoint;
+  Mat3<T> kpCartesian, kdCartesian, kpJoint, kdJoint; //P:Proportional, D:Derivative
 };
 
 /*!
@@ -63,24 +63,32 @@ class LegController {
   void zeroCommand();
   void edampCommand(RobotType robot, T gain);
   void updateData(const SpiData* spiData);
+#ifdef CHEETAH3
   void updateData(const TiBoardData* tiBoardData);
+#endif
   void updateCommand(SpiCommand* spiCommand);
+#ifdef CHEETAH3
   void updateCommand(TiBoardCommand* tiBoardCommand);
+#endif
   void setEnabled(bool enabled) { _legsEnabled = enabled; };
   void setLcm(leg_control_data_lcmt* data, leg_control_command_lcmt* command);
 
+#ifdef CHEETAH3
   /*!
    * Set the maximum torque.  This only works on cheetah 3!
    */
   void setMaxTorqueCheetah3(T tau) { _maxTorque = tau; }
+#endif
 
   LegControllerCommand<T> commands[4];
   LegControllerData<T> datas[4];
   Quadruped<T>& _quadruped;
   bool _legsEnabled = false;
+#ifdef CHEETAH3
   T _maxTorque = 0;
   bool _zeroEncoders = false;
   u32 _calibrateEncoders = 0;
+#endif
 };
 
 template <typename T>

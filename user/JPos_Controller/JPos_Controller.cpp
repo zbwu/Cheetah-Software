@@ -20,16 +20,24 @@ void JPos_Controller::runController(){
     }
   }
 
+#ifdef CHEETAH3
   _legController->_maxTorque = 150;
+#endif
   _legController->_legsEnabled = true;
 
   if(userParameters.calibrate > 0.4) {
+#ifdef CHEETAH3
     _legController->_calibrateEncoders = userParameters.calibrate;
+#endif
   } else {
     if(userParameters.zero > 0.5) {
+#ifdef CHEETAH3
       _legController->_zeroEncoders = true;
+#endif
     } else {
+#ifdef CHEETAH3
       _legController->_zeroEncoders = false;
+#endif
 
       for(int leg(0); leg<4; ++leg){
         for(int jidx(0); jidx<3; ++jidx){

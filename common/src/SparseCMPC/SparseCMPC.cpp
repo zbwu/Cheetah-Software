@@ -1,7 +1,7 @@
 #include "SparseCMPC/SparseCMPC.h"
 #include "Math/orientation_tools.h"
 #include <Utilities/Timer.h>
-#include "../../../third-party/JCQP/QpProblem.h"
+#include "QpProblem.h"
 
 
 // X0 != x[0]
@@ -342,6 +342,7 @@ void SparseCMPC::addLinearStateCost() {
 
 }
 
+#if 0
 void SparseCMPC::runSolver() {
   u32 varCount = 12 * _trajectoryLength + 3 * _bBlockCount;
   //printf("[SparseCMPC] Run %d, %d\n", varCount, _constraintCount);
@@ -373,6 +374,7 @@ void SparseCMPC::runSolver() {
   solver.runFromTriples(-1, true);
   _result = solver.getSolution().cast<float>();
 }
+#endif
 
 //static const char* names[] = {"roll", "pitch", "yaw", "x", "y", "z", "roll-rate", "pitch-rate", "yaw-rate", "xv", "yv", "zv"};
 

@@ -41,7 +41,9 @@ struct SimulatorToRobotMessage {
 
   // leg data
   SpiData spiData;
+#ifdef CHEETAH3
   TiBoardData tiBoardData[4];
+#endif
   // todo cheetah 3
   ControlParameterRequest controlParameterRequest;
 
@@ -54,7 +56,9 @@ struct SimulatorToRobotMessage {
 struct RobotToSimulatorMessage {
   RobotType robotType;
   SpiCommand spiCommand;
+#ifdef CHEETAH3
   TiBoardCommand tiBoardCommand[4];
+#endif
 
   VisualizationData visualizationData;
   CheetahVisualization mainCheetahVisualization;

@@ -3,7 +3,7 @@
 
 #include "GraphSearch.h"
 #include "cppTypes.h"
-#include "../../../third-party/JCQP/SparseMatrixMath.h"
+#include "SparseMatrixMath.h"
 
 struct BblockID {
   u32 foot;

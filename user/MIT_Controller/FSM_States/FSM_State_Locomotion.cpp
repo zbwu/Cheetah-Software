@@ -26,12 +26,12 @@ FSM_State_Locomotion<T>::FSM_State_Locomotion(ControlFSMData<T>* _controlFSMData
         //22 / (1000. * _controlFSMData->controlParameters->controller_dt),
         27 / (1000. * _controlFSMData->controlParameters->controller_dt),
         _controlFSMData->userParameters);
-
+#ifdef CHEETAH3
   }else if(_controlFSMData->_quadruped->_robotType == RobotType::CHEETAH_3){
     cMPCOld = new ConvexMPCLocomotion(_controlFSMData->controlParameters->controller_dt,
         33 / (1000. * _controlFSMData->controlParameters->controller_dt),
         _controlFSMData->userParameters);
-
+#endif
   }else{
     assert(false);
   }

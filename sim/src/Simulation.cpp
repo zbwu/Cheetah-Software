@@ -1,6 +1,6 @@
 #include "Simulation.h"
 #include "Dynamics/Quadruped.h"
-#include "ParamHandler.hpp"
+#include "Utilities/ParamHandler.hpp"
 
 #include <Configuration.h>
 #include <include/GameController.h>
@@ -44,8 +44,14 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
   // init quadruped info
   printf("[Simulation] Build quadruped...\n");
   _robot = robot;
-  _quadruped = _robot == RobotType::MINI_CHEETAH ? buildMiniCheetah<double>()
-                                                 : buildCheetah3<double>();
+  if (_robot == RobotType::MINI_CHEETAH)
+    _quadruped = buildMiniCheetah<double>();
+#ifdef CHEETAH3
+    else if (_robot == RobotType::CHEETAH_3)
+    _quadruped = buildCheetah3<double>();
+#endif
+  else
+    assert(false);
   printf("[Simulation] Build actuator model...\n");
   _actuatorModels = _quadruped.buildActuatorModels();
   _window = window;
@@ -163,6 +169,7 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
       _spineBoards[leg].resetData();
       _spineBoards[leg].resetCommand();
     }
+#ifdef CHEETAH3
   } else if (_robot == RobotType::CHEETAH_3) {
     // init ti board
     for (int leg = 0; leg < 4; leg++) {
@@ -174,6 +181,7 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
       _tiBoards[leg].reset_ti_board_data();
       _tiBoards[leg].run_ti_board_iteration();
     }
+#endif
   } else {
     assert(false);
   }
@@ -345,6 +353,7 @@ void Simulation::step(double dt, double dtLowLevelControl,
             _simulator->getState().qd[leg * 3 + joint]);
       }
     }
+#ifdef CHEETAH3
   } else if (_robot == RobotType::CHEETAH_3) {
     for (int leg = 0; leg < 4; leg++) {
       for (int joint = 0; joint < 3; joint++) {
@@ -353,6 +362,7 @@ void Simulation::step(double dt, double dtLowLevelControl,
             _simulator->getState().qd[leg * 3 + joint]);
       }
     }
+#endif
   } else {
     assert(false);
   }
@@ -391,7 +401,7 @@ void Simulation::lowLevelControl() {
     for (auto& spineBoard : _spineBoards) {
       spineBoard.run();
     }
-
+#ifdef CHEETAH3
   } else if (_robot == RobotType::CHEETAH_3) {
     // update data
     for (int leg = 0; leg < 4; leg++) {
@@ -407,6 +417,7 @@ void Simulation::lowLevelControl() {
     for (auto& tiBoard : _tiBoards) {
       tiBoard.run_ti_board_iteration();
     }
+#endif
   } else {
     assert(false);
   }
@@ -433,10 +444,12 @@ void Simulation::highLevelControl() {
   // send leg data to robot
   if (_robot == RobotType::MINI_CHEETAH) {
     _sharedMemory.getObject().simToRobot.spiData = _spiData;
+#ifdef CHEETAH3
   } else if (_robot == RobotType::CHEETAH_3) {
     for (int i = 0; i < 4; i++) {
       _sharedMemory.getObject().simToRobot.tiBoardData[i] = *_tiBoards[i].data;
     }
+#endif
   } else {
     assert(false);
   }
@@ -473,10 +486,12 @@ void Simulation::highLevelControl() {
     // pretty_print(_spiCommand.q_des_abad, "q des abad", 4);
     // pretty_print(_spiCommand.q_des_hip, "q des hip", 4);
     // pretty_print(_spiCommand.q_des_knee, "q des knee", 4);
+#ifdef CHEETAH3
   } else if (_robot == RobotType::CHEETAH_3) {
     for (int i = 0; i < 4; i++) {
       _tiBoards[i].command = _sharedMemory.getObject().robotToSim.tiBoardCommand[i];
     }
+#endif
   } else {
     assert(false);
   }

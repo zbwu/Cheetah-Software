@@ -62,18 +62,22 @@ void LegController<T>::zeroCommand() {
 template <typename T>
 void LegController<T>::edampCommand(RobotType robot, T gain) {
   zeroCommand();
-  if (robot == RobotType::CHEETAH_3) {
-    for (int leg = 0; leg < 4; leg++) {
-      for (int axis = 0; axis < 3; axis++) {
-        commands[leg].kdCartesian(axis, axis) = gain;
-      }
-    }
-  } else {  // mini-cheetah
+  if (robot == RobotType::MINI_CHEETAH) {  // mini-cheetah
     for (int leg = 0; leg < 4; leg++) {
       for (int axis = 0; axis < 3; axis++) {
         commands[leg].kdJoint(axis, axis) = gain;
       }
     }
+#ifdef CHEETAH3
+  } else if (robot == RobotType::CHEETAH_3) {
+    for (int leg = 0; leg < 4; leg++) {
+      for (int axis = 0; axis < 3; axis++) {
+        commands[leg].kdCartesian(axis, axis) = gain;
+      }
+    }
+#endif
+  } else {
+    assert(false);
   }
 }
 
@@ -102,6 +106,7 @@ void LegController<T>::updateData(const SpiData* spiData) {
   }
 }
 
+#ifdef CHEETAH3
 /*!
  * Update the "leg data" from a TI Board message
  */
@@ -123,6 +128,7 @@ void LegController<T>::updateData(const TiBoardData* tiBoardData) {
     //printf("%d leg, velocity: %f, %f, %f\n", leg, datas[leg].v[0], datas[leg].v[1], datas[leg].v[2]);
   }
 }
+#endif
 
 /*!
  * Update the "leg command" for the SPIne board message
@@ -178,6 +184,7 @@ void LegController<T>::updateCommand(SpiCommand* spiCommand) {
   }
 }
 
+#ifdef CHEETAH3
 constexpr float CHEETAH_3_ZERO_OFFSET[4][3] = {{1.f, 4.f, 7.f},
                                                {2.f, 5.f, 8.f},
                                                {3.f, 6.f, 9.f}};
@@ -219,6 +226,7 @@ void LegController<T>::updateCommand(TiBoardCommand* tiBoardCommand) {
 
   }
 }
+#endif
 
 /*!
  * Set LCM debug data from leg commands and data

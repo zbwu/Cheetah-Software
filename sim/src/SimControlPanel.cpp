@@ -2,7 +2,7 @@
 #include <ControlParameters/ControlParameters.h>
 #include <QFileDialog>
 #include <QMessageBox>
-#include <ParamHandler.hpp>
+#include "Utilities/ParamHandler.hpp"
 #include <leg_control_command_lcmt.hpp>
 #include "ui_SimControlPanel.h"
 #include "JoystickTest.h"
@@ -75,10 +75,12 @@ SimControlPanel::SimControlPanel(QWidget* parent)
       ui(new Ui::SimControlPanel),
       _userParameters("user-parameters"),
       _terrainFileName(getConfigDirectoryPath() + DEFAULT_TERRAIN_FILE),
+#ifdef LOCO_VISION
       _heightmapLCM(getLcmUrl(255)),
       _pointsLCM(getLcmUrl(255)),
       _indexmapLCM(getLcmUrl(255)),
       _ctrlVisionLCM(getLcmUrl(255)),
+#endif
       _miniCheetahDebugLCM(getLcmUrl(255))
 {
 
@@ -124,6 +126,7 @@ SimControlPanel::SimControlPanel(QWidget* parent)
   }
   loadSimulationParameters(_parameters);
 
+#if LOCO_VISION
   _pointsLCM.subscribe("cf_pointcloud", &SimControlPanel::handlePointsLCM, this);
   _pointsLCMThread = std::thread(&SimControlPanel::pointsLCMThread, this); 
 
@@ -136,16 +139,14 @@ SimControlPanel::SimControlPanel(QWidget* parent)
   _ctrlVisionLCM.subscribe("velocity_cmd", &SimControlPanel::handleVelocityCMDLCM, this);
   _ctrlVisionLCM.subscribe("obstacle_visual", &SimControlPanel::handleObstacleLCM, this);
   _ctrlVisionLCMThread = std::thread(&SimControlPanel::ctrlVisionLCMThread, this);
+#endif
 
-  // subscribe mc debug
   _miniCheetahDebugLCM.subscribe("leg_control_data", &SimControlPanel::handleSpiDebug, this);
-  _miniCheetahDebugLCMThread = std::thread([&](){
-   for(;;)
-     _miniCheetahDebugLCM.handle();
-  });
+  _miniCheetahDebugLCMThread = std::thread(&SimControlPanel::miniCheetahDebugLCMThread, this);
 
 }
 
+#ifdef LOCO_VISION
 void SimControlPanel::handleVelocityCMDLCM(const lcm::ReceiveBuffer* rbuf, 
     const std::string & chan,
     const velocity_visual_t* msg){
@@ -237,6 +238,7 @@ void SimControlPanel::handleHeightmapLCM(const lcm::ReceiveBuffer *rbuf,
     _graphicsWindow->_heightmap_data_update = true;
   }
 }
+#endif
 
 void SimControlPanel::handleSpiDebug(const lcm::ReceiveBuffer *rbuf, const std::string &chan,
                                      const leg_control_data_lcmt *msg) {
@@ -278,10 +280,37 @@ void SimControlPanel::handleSpiDebug(const lcm::ReceiveBuffer *rbuf, const std::
 
 
 SimControlPanel::~SimControlPanel() {
+  if (_startSpiDebug) {
+    _startSpiDebug = false;
+    _miniCheetahDebugLCMThread.join();
+  }
+
+  // macos need exit all thread before exit main program
+  if (_simulation) {
+    _simulation->stop();
+    _simThread.join();
+  } else {
+    _robotInterface->stopInterface();
+  }
+
   delete _simulation;
-  delete _interfaceTaskManager;
   delete _robotInterface;
+  delete _interfaceTaskManager;
+
+  _simulation = nullptr;
+  _robotInterface = nullptr;
+  _interfaceTaskManager = nullptr;
+  
+
+  if (_graphicsWindow) {
+    _graphicsWindow->setAnimating(false);
+    _graphicsWindow->hide();
+  }
+
   delete _graphicsWindow;
+  _graphicsWindow = nullptr;
+
+
   delete ui;
 }
 
@@ -353,10 +382,14 @@ void SimControlPanel::on_startButton_clicked() {
   // get robot type
   RobotType robotType;
 
-  if (ui->cheetah3Button->isChecked()) {
-    robotType = RobotType::CHEETAH_3;
-  } else if (ui->miniCheetahButton->isChecked()) {
+  if (ui->miniCheetahButton->isChecked()) {
     robotType = RobotType::MINI_CHEETAH;
+  } else if (ui->cyberdogButton->isChecked()) {
+    robotType = RobotType::CYBERDOG;
+#ifdef CHEETAH_3
+  } else if (ui->cheetah3Button->isChecked()) {
+    robotType = RobotType::CHEETAH_3;
+#endif
   } else {
     createErrorMessage("Error: you must select a robot");
     return;

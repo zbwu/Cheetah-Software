@@ -116,8 +116,10 @@ Graphics3D::Graphics3D(QWidget *parent)
   _g[7] = 0.9839;
   _b[7] = 0.0805;
 
+#ifdef LOCO_VISION
   _map = DMat<float>::Zero(x_size, y_size);
   _idx_map = DMat<int>::Zero(x_size, y_size);
+#endif
 
   _fixedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
   _fixedFont.setPointSize(16);
@@ -621,6 +623,7 @@ void Graphics3D::_drawMesh(MeshVisualization &mesh) {
   glPopAttrib();
 }
 
+#ifdef LOCO_VISION
 void Graphics3D::_drawVelArrow(){
   //glEnable(GL_BLEND);
   //glDisable(GL_BLEND);
@@ -734,6 +737,7 @@ void Graphics3D::_drawHeightMap() {
   glEnable(GL_LIGHTING);
   glPopAttrib();
 }
+#endif
 
 void Graphics3D::_MeshObstacleDrawing() {
   glLoadMatrixf(_cameraMatrix.data());
@@ -923,6 +927,7 @@ void Graphics3D::_Additional_Drawing(int pass) {
     _drawSphere(_drawList._visualizationData->spheres[i]);
   }
 
+#ifdef LOCO_VISION
   if(_vel_cmd_update){ _drawVelArrow(); }
 
   // Pointcloud Drawing
@@ -936,15 +941,19 @@ void Graphics3D::_Additional_Drawing(int pass) {
       _drawSphere(sphere);
     }
   }
+#endif
 
 
   glDisable(GL_BLEND);
   for (size_t i(0); i< _drawList._visualizationData->num_meshes; ++i){
     _drawMesh(_drawList._visualizationData->meshes[i]);
   }
+
+#ifdef LOCO_VISION
   // Heightmap Drawing
   if(_obstacle_update){ _drawObstacleField(); }
   if(_heightmap_data_update){ _drawHeightMap(); }
+#endif
 
   for (size_t i = 0; i < _drawList._visualizationData->num_paths; i++) {
     PathVisualization path = _drawList._visualizationData->paths[i];

@@ -48,8 +48,14 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
                  &RobotInterface::handleVisualizationData, this);
 
   printf("[RobotInterface] Init dynamics\n");
-  _quadruped = robotType == RobotType::MINI_CHEETAH ? buildMiniCheetah<double>()
-                                                    : buildCheetah3<double>();
+  if (robotType == RobotType::MINI_CHEETAH)
+    _quadruped = buildMiniCheetah<double>();
+#ifdef CHEETAH3
+  else if (robotType == RobotType::CHEETAH_3)
+    _quadruped = buildCheetah3<double>();
+#endif
+  else
+    assert(false);
   _model = _quadruped.buildModel();
   _simulator = new DynamicsSimulator<double>(_model, false);
   DVec<double> zero12(12);

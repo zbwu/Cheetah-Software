@@ -30,6 +30,7 @@ using namespace spatial;
 /*!
  * Generate a Quadruped model of Cheetah 3
  */
+#ifdef CHEETAH3
 template <typename T>
 Quadruped<T> buildCheetah3() {
   Quadruped<T> cheetah;
@@ -114,5 +115,6 @@ Quadruped<T> buildCheetah3() {
   cheetah._kneeRotorLocation = Vec3<T>(0, 0, 0);
   return cheetah;
 }
+#endif
 
 #endif  // LIBBIOMIMETICS_CHEETAH3_H
