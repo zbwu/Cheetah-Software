@@ -78,9 +78,11 @@ void GameController::findNewController() {
 
   if (_controller && SDL_GameControllerGetAttached(_controller)) {
     printf("[GameController] Name: %s\n", SDL_GameControllerName(_controller));
+#if SDL_PATCHLEVEL > 14
     printf("[GameController] Has Accelerometer: %s\n", SDL_GameControllerHasSensor(_controller, SDL_SENSOR_ACCEL) ? "True" : "False");
     printf("[GameController] Has Gyroscope: %s\n", SDL_GameControllerHasSensor(_controller, SDL_SENSOR_GYRO) ? "True" : "False");
     printf("[GameController] Has LED: %s\n", SDL_GameControllerHasLED(_controller) ? "True" : "False");
+#endif
   } else {
     printf("[GameController] Not connected Game Controller\n");
   }
