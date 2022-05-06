@@ -4,9 +4,9 @@
 [submodule "third-party/yaml-cpp"]
 	path = third-party/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
-[submodule "third-party/lcm"]
-	path = third-party/lcm
-	url = https://github.com/lcm-proj/lcm.git
 [submodule "third-party/qpOASES"]
 	path = third-party/qpOASES
 	url = https://github.com/coin-or/qpOASES.git
+[submodule "third-party/lcm"]
+	path = third-party/lcm
+	url = https://github.com/zbwu/lcm.git
