@@ -40,7 +40,25 @@ std::string getCurrentTimeAndDate() {
  * Todo: do something better to keep track of where we are relative to the
  * config directory
  */
-std::string getConfigDirectoryPath() { return "../config"; }
+std::string getConfigDirectoryPath(const fs::path &path) {
+
+  fs::path p1 = fs::path("/opt/locomotion/config/") / path.filename();
+  fs::path p2 = fs::path("./config/") / path.filename();
+  fs::path p3 = fs::path("../config/") / path.filename();
+
+  fs::path p = "";
+
+  if (fs::exists(p1))
+    p = p1;
+  else if (fs::exists(p2))
+    p = p2;
+  else if (fs::exists(p3))
+    p = p3;
+
+  // std::cout << "config path: " << p << std::endl;
+
+  return p; 
+}
 
 /*!
  * Get the LCM URL with desired TTL.

@@ -90,35 +90,35 @@ void ControlFSM<T>::initialize() {
 template <typename T>
 void ControlFSM<T>::runFSM() {
   // Publish state estimator data to other computer
-  //for(size_t i(0); i<3; ++i){
-    //_state_estimator.p[i] = data._stateEstimator->getResult().position[i];
-    //_state_estimator.quat[i] = data._stateEstimator->getResult().orientation[i];
-  //}
-    //_state_estimator.quat[3] = data._stateEstimator->getResult().orientation[3];
-  //state_estimator_lcm.publish("state_estimator_ctrl_pc", &_state_estimator);
+  // for (size_t i(0); i < 3; ++i) {
+  //   _state_estimator.p[i] = data._stateEstimator->getResult().position[i];
+  //   _state_estimator.quat[i] = data._stateEstimator->getResult().orientation[i];
+  // }
+  // _state_estimator.quat[3] = data._stateEstimator->getResult().orientation[3];
+  // state_estimator_lcm.publish("state_estimator_ctrl_pc", &_state_estimator);
 
   // Check the robot state for safe operation
   operatingMode = safetyPreCheck();
 
-  if(data.controlParameters->use_rc){
+  if (data.controlParameters->use_rc) {
     int rc_mode = data._desiredStateCommand->rcCommand->mode;
-    if(rc_mode == RC_mode::RECOVERY_STAND){
+    if (rc_mode == RC_mode::RECOVERY_STAND) {
       data.controlParameters->control_mode = K_RECOVERY_STAND;
 
-    } else if(rc_mode == RC_mode::LOCOMOTION){
+    } else if (rc_mode == RC_mode::LOCOMOTION) {
       data.controlParameters->control_mode = K_LOCOMOTION;
 
-    } else if(rc_mode == RC_mode::QP_STAND){
+    } else if (rc_mode == RC_mode::QP_STAND) {
       data.controlParameters->control_mode = K_BALANCE_STAND;
 
-    } else if(rc_mode == RC_mode::VISION){
+    } else if (rc_mode == RC_mode::VISION) {
       data.controlParameters->control_mode = K_VISION;
 
-    } else if(rc_mode == RC_mode::BACKFLIP || rc_mode == RC_mode::BACKFLIP_PRE){
+    } else if (rc_mode == RC_mode::BACKFLIP || rc_mode == RC_mode::BACKFLIP_PRE) {
       data.controlParameters->control_mode = K_BACKFLIP;
-   }
-      //data.controlParameters->control_mode = K_FRONTJUMP;
-    //std::cout<< "control mode: "<<data.controlParameters->control_mode<<std::endl;
+    }
+    // data.controlParameters->control_mode = K_FRONTJUMP;
+    // std::cout << "control mode: " << data.controlParameters->control_mode << std::endl;
   }
 
   // Run the robot control code if operating mode is not unsafe
@@ -174,7 +174,7 @@ void ControlFSM<T>::runFSM() {
       safetyPostCheck();
     }
 
-  } else { // if ESTOP
+  } else {// if ESTOP
     currentState = statesList.passive;
     currentState->onEnter();
     nextStateName = currentState->stateName;

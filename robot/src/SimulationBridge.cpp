@@ -8,12 +8,13 @@
 #include "Utilities/SegfaultHandler.h"
 #include "Controllers/LegController.h"
 #include "rt/rt_rc_interface.h"
-#include "rt/rt_sbus.h"
 
 /*!
  * Connect to a simulation
  */
 void SimulationBridge::run() {
+  bool running = true;
+
   // init shared memory:
   _sharedMemory.attach();
 
@@ -24,7 +25,7 @@ void SimulationBridge::run() {
   try {
     printf("[Simulation Driver] Starting main loop...\n");
     bool firstRun = true;
-    for (;;) {
+    while (running) {
       // wait for our turn to access the shared memory
       // on the first loop, this gives the simulator a chance to put stuff in
       // shared memory before we start
@@ -59,7 +60,7 @@ void SimulationBridge::run() {
           break;
         case SimulatorMode::EXIT:  // the simulator is done with us
           printf("[Simulation Driver] Transitioned to exit mode\n");
-          return;
+          running = false;
           break;
         default:
           throw std::runtime_error("unknown simulator mode");
@@ -69,21 +70,21 @@ void SimulationBridge::run() {
       _sharedMemory.robotIsDone();
     }
   } catch (std::exception& e) {
-    strncpy(_sharedMemory.getObject().robotToSim.errorMessage, e.what(), sizeof(_sharedMemory.getObject().robotToSim.errorMessage));
-    _sharedMemory.getObject().robotToSim.errorMessage[sizeof(_sharedMemory.getObject().robotToSim.errorMessage) - 1] = '\0';
+    size_t len = sizeof(_sharedMemory.getObject().robotToSim.errorMessage);
+    strncpy(_sharedMemory.getObject().robotToSim.errorMessage, e.what(), len - 1);
+    _sharedMemory.getObject().robotToSim.errorMessage[len - 1] = '\0';
     throw e;
   }
 
+  _sharedMemory.destory();
 }
 
 /*!
  * This function handles a a control parameter message from the simulator
  */
 void SimulationBridge::handleControlParameters() {
-  ControlParameterRequest& request =
-      _sharedMemory.getObject().simToRobot.controlParameterRequest;
-  ControlParameterResponse& response =
-      _sharedMemory.getObject().robotToSim.controlParameterResponse;
+  ControlParameterRequest& request = _sharedMemory.getObject().simToRobot.controlParameterRequest;
+  ControlParameterResponse& response = _sharedMemory.getObject().robotToSim.controlParameterResponse;
   if (request.requestNumber <= response.requestNumber) {
     // nothing to do!
     printf(
@@ -117,13 +118,10 @@ void SimulationBridge::handleControlParameters() {
       param.set(request.value, request.parameterKind);
 
       // respond:
-      response.requestNumber =
-          request.requestNumber;  // acknowledge that the set has happened
-      response.parameterKind =
-          request.parameterKind;       // just for debugging print statements
+      response.requestNumber = request.requestNumber;  // acknowledge that the set has happened
+      response.parameterKind = request.parameterKind;       // just for debugging print statements
       response.value = request.value;  // just for debugging print statements
-      strcpy(response.name,
-             name.c_str());  // just for debugging print statements
+      strcpy(response.name, name.c_str());  // just for debugging print statements
       response.requestKind = request.requestKind;
 
       printf("%s\n", response.toString().c_str());
@@ -151,13 +149,10 @@ void SimulationBridge::handleControlParameters() {
       }
 
       // respond:
-      response.requestNumber =
-          request.requestNumber;  // acknowledge that the set has happened
-      response.parameterKind =
-          request.parameterKind;       // just for debugging print statements
+      response.requestNumber = request.requestNumber;  // acknowledge that the set has happened
+      response.parameterKind = request.parameterKind;       // just for debugging print statements
       response.value = request.value;  // just for debugging print statements
-      strcpy(response.name,
-             name.c_str());  // just for debugging print statements
+      strcpy(response.name, name.c_str());  // just for debugging print statements
       response.requestKind = request.requestKind;
 
       printf("%s\n", response.toString().c_str());
@@ -180,12 +175,9 @@ void SimulationBridge::handleControlParameters() {
       // respond
       response.value = param.get(request.parameterKind);
       response.requestNumber = request.requestNumber;  // acknowledge
-      response.parameterKind =
-          request.parameterKind;  // just for debugging print statements
-      strcpy(response.name,
-             name.c_str());  // just for debugging print statements
-      response.requestKind =
-          request.requestKind;  // just for debugging print statements
+      response.parameterKind = request.parameterKind;  // just for debugging print statements
+      strcpy(response.name, name.c_str());  // just for debugging print statements
+      response.requestKind = request.requestKind;  // just for debugging print statements
 
       printf("%s\n", response.toString().c_str());
     } break;
@@ -204,11 +196,9 @@ void SimulationBridge::runRobotControl() {
       printf("\tAll %ld control parameters are initialized\n",
              _robotParams.collection._map.size());
     } else {
-      printf(
-          "\tbut not all control parameters were initialized. Missing:\n%s\n",
+      printf("\tbut not all control parameters were initialized. Missing:\n%s\n",
           _robotParams.generateUnitializedList().c_str());
-      throw std::runtime_error(
-          "not all parameters initialized when going into RUN_CONTROLLER");
+      throw std::runtime_error("not all parameters initialized when going into RUN_CONTROLLER");
     }
 
     auto* userControlParameters = _robotRunner->_robot_ctrl->getUserControlParameters();
@@ -218,19 +208,16 @@ void SimulationBridge::runRobotControl() {
                userControlParameters->collection._map.size());
         _simMode = SimulatorMode::RUN_CONTROLLER;
       } else {
-        printf(
-            "\tbut not all control parameters were initialized. Missing:\n%s\n",
+        printf("\tbut not all control parameters were initialized. Missing:\n%s\n",
             userControlParameters->generateUnitializedList().c_str());
-        throw std::runtime_error(
-            "not all parameters initialized when going into RUN_CONTROLLER");
+        throw std::runtime_error("not all parameters initialized when going into RUN_CONTROLLER");
       }
     } else {
       _simMode = SimulatorMode::RUN_CONTROLLER;
     }
 
 
-    _robotRunner->driverCommand =
-        &_sharedMemory.getObject().simToRobot.gamepadCommand;
+    _robotRunner->driverCommand = &_sharedMemory.getObject().simToRobot.gamepadCommand;
     _robotRunner->spiData = &_sharedMemory.getObject().simToRobot.spiData;
 #ifdef CHEETAH3
     _robotRunner->tiBoardData = _sharedMemory.getObject().simToRobot.tiBoardData;
@@ -243,24 +230,19 @@ void SimulationBridge::runRobotControl() {
     _robotRunner->tiBoardCommand = _sharedMemory.getObject().robotToSim.tiBoardCommand;
 #endif
     _robotRunner->controlParameters = &_robotParams;
-    _robotRunner->visualizationData =
-        &_sharedMemory.getObject().robotToSim.visualizationData;
-    _robotRunner->cheetahMainVisualization =
-        &_sharedMemory.getObject().robotToSim.mainCheetahVisualization;
+    _robotRunner->visualizationData = &_sharedMemory.getObject().robotToSim.visualizationData;
+    _robotRunner->cheetahMainVisualization = &_sharedMemory.getObject().robotToSim.mainCheetahVisualization;
 
     _robotRunner->init();
     _firstControllerRun = false;
 
-#ifdef linux
 #ifdef SBUS_CONTROLLER
     sbus_thread = new std::thread(&SimulationBridge::run_sbus, this);
-#endif
 #endif
   }
   _robotRunner->run();
 }
 
-#ifdef linux
 #ifdef SBUS_CONTROLLER
 /*!
  * Run the RC receive thread
@@ -278,5 +260,4 @@ void SimulationBridge::run_sbus() {
     usleep(5000);
   }
 }
-#endif
 #endif

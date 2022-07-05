@@ -80,7 +80,7 @@ void JPosInitializer<T>::_UpdateInitial(const LegController<T>* ctrl) {
 
 template <typename T>
 void JPosInitializer<T>::_UpdateParam() {
-  ParamHandler handler(THIS_COM "config/initial_jpos_ctrl.yaml");
+  ParamHandler handler(getConfigDirectoryPath("initial_jpos_ctrl.yaml"));
   handler.getVector<T>("target_jpos", _target_jpos);
   handler.getVector<T>("mid_jpos", _mid_jpos);
 }

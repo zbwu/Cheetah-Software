@@ -9,13 +9,7 @@
  */
 
 #include "GameController.h"
-
-#include <QtCore/QObject>
-#ifdef QT_GAMEPAD
-#include <QtGamepad/QGamepad>
-#else
-#include <SDL.h>
-#endif
+#include "moc_GameController.cpp"
 
 /*!
  * By default, the game controller selects the "first" joystick, printing a
@@ -41,23 +35,19 @@ static inline float s16ToFloat(s16 axis)
  * plugged in
  */
 void GameController::findNewController() {
-#if QT_GAMEPAD
+#ifdef QT_GAMEPAD
   delete _qGamepad;
-  _qGamepad = nullptr;  // in case this doesn't work!
+  _qGamepad = nullptr;// in case this doesn't work!
 
-  printf("[Gamepad] Searching for gamepads, please ignore \"Device discovery cannot open device\" errors\n");
+  // printf("[Gamepad] Searching for gamepads.\n");
   auto gamepadList = QGamepadManager::instance()->connectedGamepads();
-  printf("[Gamepad] Done searching for gamepads.\n");
+  // printf("[Gamepad] Done searching for gamepads.\n");
   if (gamepadList.empty()) {
-    printf(
-        "[ERROR: GameController] No controller was connected! All joystick "
-        "commands will be zero!\n");
+    printf("[GameController] Not connected Game Controller\n");
   } else {
     if (gamepadList.size() > 1) {
-      printf(
-          "[ERROR: GameController] There are %d joysticks connected.  Using "
-          "the first one.\n",
-          gamepadList.size());
+      printf("[GameController] There are %d joysticks connected. Using the first one.\n",
+             gamepadList.size());
     } else {
       printf("[GameController] Found 1 joystick\n");
     }

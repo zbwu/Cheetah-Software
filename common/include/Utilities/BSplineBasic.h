@@ -1,8 +1,8 @@
 #ifndef B_SPLINE_BASIC
 #define B_SPLINE_BASIC
 
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 #include <iostream>
 
 #define SP_IS_EQUAL(x, y) (((x) - (y)) * ((x) - (y)) < 1.e-10)

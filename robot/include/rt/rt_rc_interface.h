@@ -31,6 +31,7 @@ namespace RC_mode{
   constexpr int TWO_LEG_STANCE = 21;
 };
 
+#ifdef SBUS_CONTROLLER
 void sbus_packet_complete();
 
 void get_rc_control_settings(void* settings);
@@ -39,5 +40,6 @@ void get_rc_control_settings(void* settings);
 void* v_memcpy(void* dest, volatile void* src, size_t n);
 
 float deadband(float command, float deadbandRegion, float minVal, float maxVal);
+#endif
 
 #endif

@@ -64,7 +64,7 @@ struct RobotToSimulatorMessage {
   CheetahVisualization mainCheetahVisualization;
   ControlParameterResponse controlParameterResponse;
 
-  char errorMessage[2056];
+  char errorMessage[2048];
 };
 
 /*!
@@ -148,25 +148,48 @@ struct SimulatorSyncronizedMessage : public SimulatorMessage {
 class SimulatorSyncronized {
  public:
 
-  bool create() {
+  int create() {
     _simToRobotSemaphore.create(SIMULATOR_SEMAPHORE_NAME);
     _robotToSimSemaphore.create(ROBOT_SEMAPHORE_NAME);
+    _sharedMemory.create(DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME, true);
 
-    return _sharedMemory.createNew(DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME, true);
+    return 0;
   }
 
   void destory() {
-
+    _simToRobotSemaphore.destroy();
+    _robotToSimSemaphore.destroy();
+    _sharedMemory.destroy();
   }
 
-  void attach() {
+  int attach() {
+    debug_memory_usage();
     _sharedMemory.attach(DEVELOPMENT_SIMULATOR_SHARED_MEMORY_NAME);
     _simToRobotSemaphore.attach(SIMULATOR_SEMAPHORE_NAME);
     _robotToSimSemaphore.attach(ROBOT_SEMAPHORE_NAME);
+
+    return 0;
   }
 
   SimulatorMessage& getObject() {
     return _sharedMemory.getObject();
+  }
+
+  void debug_memory_usage() {
+    printf("SimulatorMessage: %jd bytes\n", sizeof(SimulatorMessage));
+
+    printf("\tRobotToSimulatorMessage: %jd bytes\n", sizeof(RobotToSimulatorMessage));
+    printf("\t\tSpiCommand: %jd bytes\n", sizeof(SpiCommand));
+    printf("\t\tVisualizationData: %jd bytes\n", sizeof(VisualizationData));
+    printf("\t\tCheetahVisualization: %jd bytes\n", sizeof(CheetahVisualization));
+    printf("\t\tControlParameterResponse: %jd bytes\n", sizeof(ControlParameterResponse));
+
+    printf("\tSimulatorToRobotMessage: %jd bytes\n", sizeof(SimulatorToRobotMessage));
+    printf("\t\tGamepadCommand: %jd bytes\n", sizeof(GamepadCommand));
+    printf("\t\tVectorNavData: %jd bytes\n", sizeof(VectorNavData));
+    printf("\t\tCheaterState<double>: %jd bytes\n", sizeof(CheaterState<double>));
+    printf("\t\tSpiData: %jd bytes\n", sizeof(SpiData));
+    printf("\t\tControlParameterRequest: %jd bytes\n", sizeof(ControlParameterRequest));
   }
 
   /*!

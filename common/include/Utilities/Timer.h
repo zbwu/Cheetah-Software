@@ -5,9 +5,9 @@
 #ifndef PROJECT_TIMER_H
 #define PROJECT_TIMER_H
 
-#include <assert.h>
-#include <stdint.h>
-#include <time.h>
+#include <cassert>
+#include <cstdint>
+#include <ctime>
 
 /*!
  * Timer for measuring time elapsed with clock_monotonic

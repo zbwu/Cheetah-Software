@@ -4,6 +4,8 @@
 #include <string.h> // memcpy
 #include <stdio.h>
 #include <rt/rt_sbus.h>
+
+#ifdef SBUS_CONTROLLER
 static pthread_mutex_t lcm_get_set_mutex =
 PTHREAD_MUTEX_INITIALIZER; /**< mutex to protect gui settings coming over
                              LCM */
@@ -184,4 +186,4 @@ float deadband(float command, float deadbandRegion, float minVal, float maxVal){
   }
 }
 
-
+#endif

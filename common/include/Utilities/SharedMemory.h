@@ -126,10 +126,10 @@ class SharedMemorySemaphore {
     if (_sem != NULL || _sem != SEM_FAILED) {
       sem_close(_sem);
     }
-    int ret = sem_unlink(_name);
-    if (ret != 0) {
+    if (sem_unlink(_name) && errno != ENOENT) {
       printf("[ERROR] Failed to unlink simulator semaphore: %s\n",
              strerror(errno));
+      throw std::runtime_error("Failed to destroy semaphore!");
     }
   }
 
@@ -211,7 +211,7 @@ class SharedMemoryObject {
    * Otherwise, if an object with the name already exists, throws a
    * std::runtime_error
    */
-  bool createNew(const std::string& name, bool allowOverwrite = false) {
+  bool create(const std::string& name, bool allowOverwrite = false) {
     bool hadToDelete = false;
     assert(!_data);
     _name = name;
@@ -242,7 +242,7 @@ class SharedMemoryObject {
 
     struct stat s;
     if (fstat(_fd, &s)) {
-      printf("[ERROR] SharedMemoryObject::createNew(%s) stat: %s\n",
+      printf("[ERROR] SharedMemoryObject::create(%s) stat: %s\n",
              name.c_str(), strerror(errno));
       throw std::runtime_error("Failed to create shared memory!");
       return false;
@@ -250,8 +250,8 @@ class SharedMemoryObject {
 
     if (s.st_size) {
       printf(
-          "[Shared Memory] SharedMemoryObject::createNew(%s) on something that "
-          "wasn't new (size is %lld bytes)\n",
+          "[Shared Memory] SharedMemoryObject::create(%s) on something that "
+          "wasn't new (size is %jd bytes)\n",
           _name.c_str(), s.st_size);
       hadToDelete = true;
       if (!allowOverwrite)
@@ -263,7 +263,7 @@ class SharedMemoryObject {
     }
 
     if (ftruncate(_fd, _size)) {
-      printf("[ERROR] SharedMemoryObject::createNew(%s) ftruncate(%zu): %s\n",
+      printf("[ERROR] SharedMemoryObject::create(%s) ftruncate(%zu): %s\n",
              name.c_str(), _size, strerror(errno));
       throw std::runtime_error("Failed to create shared memory!");
       return false;
@@ -272,7 +272,7 @@ class SharedMemoryObject {
     void* mem =
         mmap(nullptr, _size, PROT_READ | PROT_WRITE, MAP_SHARED, _fd, 0);
     if (mem == MAP_FAILED) {
-      printf("[ERROR] SharedMemory::createNew(%s) mmap fail: %s\n",
+      printf("[ERROR] SharedMemory::create(%s) mmap fail: %s\n",
              _name.c_str(), strerror(errno));
       throw std::runtime_error("Failed to create shared memory!");
       return false;
@@ -317,7 +317,7 @@ class SharedMemoryObject {
       printf(
           "[ERROR] SharedMemoryObject::attach(%s) on something that was "
           "incorrectly "
-          "sized (size is %lld bytes, should be %zu)\n",
+          "sized (size is %jd bytes, should be %zu)\n",
           _name.c_str(), s.st_size, _size);
       throw std::runtime_error("Failed to create shared memory!");
       return;
@@ -340,36 +340,34 @@ class SharedMemoryObject {
    * object could have been opened with either attach or createNew.  After
    * calling this, no process can use this shared object
    */
-  void closeNew() {
+  void destroy() {
     assert(_data);
     // first, unmap
     if (munmap((void*)_data, _size)) {
-      printf("[ERROR] SharedMemoryObject::closeNew (%s) munmap %s\n",
+      printf("[ERROR] SharedMemoryObject::destroy (%s) munmap %s\n",
              _name.c_str(), strerror(errno));
-      throw std::runtime_error("Failed to create shared memory!");
-      return;
+      throw std::runtime_error("Failed to destroy shared memory!");
     }
 
     _data = nullptr;
 
-    if (shm_unlink(_name.c_str())) {
-      printf("[ERROR] SharedMemoryObject::closeNew (%s) shm_unlink %s\n",
-             _name.c_str(), strerror(errno));
-      throw std::runtime_error("Failed to create shared memory!");
-      return;
-    }
-
     // close fd
     if (close(_fd)) {
-      printf("[ERROR] SharedMemoryObject::closeNew (%s) close %s\n",
+      printf("[ERROR] SharedMemoryObject::destroy (%s) close %s\n",
              _name.c_str(), strerror(errno));
-      throw std::runtime_error("Failed to create shared memory!");
-      return;
+      throw std::runtime_error("Failed to destroy shared memory!");
     }
 
     _fd = 0;
+
+    if (shm_unlink(_name.c_str()) && errno != ENOENT) {
+      printf("[ERROR] SharedMemoryObject::destroy (%s) shm_unlink %s\n",
+             _name.c_str(), strerror(errno));
+      throw std::runtime_error("Failed to destroy shared memory!");
+    }
   }
 
+#if 0
   /*!
    * Close this view of the currently opened shared memory object. The object
    * can be opened with either attach or createNew.  After calling this, this
@@ -398,6 +396,7 @@ class SharedMemoryObject {
 
     _fd = 0;
   }
+#endif
 
 #if 0
   /*!

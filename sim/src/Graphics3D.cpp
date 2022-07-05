@@ -6,6 +6,7 @@
  */
 
 #include "Graphics3D.h"
+#include "moc_Graphics3D.cpp"
 #include "Utilities/utilities.h"
 
 #ifdef linux
@@ -127,10 +128,12 @@ Graphics3D::Graphics3D(QWidget *parent)
 
 Graphics3D::~Graphics3D() {}
 
+#ifdef CHEETAH3
 /*!
  * Configure the window for displaying cheetah 3
  */
 size_t Graphics3D::setupCheetah3(Vec4<float> color, bool useOld, bool canHide) { return _drawList.addCheetah3(color, useOld, canHide); }
+#endif
 
 /*!
  * Configure the window for displaying mini cheetah
@@ -553,7 +556,9 @@ void Graphics3D::paintGL() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderDrawlist();
+#if defined(DRAW_DEBUG_PATH) || defined(DRAW_DEBUG_SWINGS)
     _Additional_Drawing(pass);
+#endif
     _BoxObstacleDrawing();
   }
 
@@ -564,13 +569,13 @@ void Graphics3D::paintGL() {
   painter2.fillRect(QRect(30, 30, 320, 180), QColor(100, 100, 100, 200));
   painter2.setFont(_fixedFont);
   painter2.setPen(QColor(210, 100, 100, 200));
-  painter2.drawText(QRect(40, 40, 300, 160), Qt::AlignLeft,
-                    QString(infoString));
+  painter2.drawText(QRect(40, 40, 300, 160), Qt::AlignLeft, QString(infoString));
   painter2.end();
 
   ++_frame;
 }
 
+#if defined(DRAW_DEBUG_PATH) || defined(DRAW_DEBUG_SWINGS)
 void Graphics3D::_drawMesh(MeshVisualization &mesh) {
 
   glPushMatrix();
@@ -622,6 +627,7 @@ void Graphics3D::_drawMesh(MeshVisualization &mesh) {
   glPopMatrix();
   glPopAttrib();
 }
+#endif
 
 #ifdef LOCO_VISION
 void Graphics3D::_drawVelArrow(){
@@ -899,6 +905,7 @@ void Graphics3D::_DrawBox(double depth, double width, double height) {
   glDisable(GL_BLEND);
 }
 
+#if defined(DRAW_DEBUG_PATH) || defined(DRAW_DEBUG_SWINGS)
 void Graphics3D::_Additional_Drawing(int pass) {
   glLoadMatrixf(_cameraMatrix.data());
   glPushAttrib(GL_LIGHTING_BIT);
@@ -968,6 +975,7 @@ void Graphics3D::_Additional_Drawing(int pass) {
   glPopAttrib();
   glEnable(GL_LIGHTING);
 }
+#endif
 
 void Graphics3D::setHideFloor(bool x) {
   show_floor = !x;
@@ -1054,6 +1062,7 @@ void Graphics3D::_rotateZtoDirection(const Vec3<float> &direction) {
   glRotatef(ori::rad2deg(theta), rX, rY, rZ);
 }
 
+#if defined(DRAW_DEBUG_PATH) || defined(DRAW_DEBUG_SWINGS)
 void Graphics3D::_drawSphere(SphereVisualization &sphere) {
   static GLUquadric *quad = gluNewQuadric();
   glPushMatrix();
@@ -1095,6 +1104,7 @@ void Graphics3D::_drawArrow(ArrowVisualization &arrow) {
   _drawArrow(arrow.base_position, arrow.direction, arrow.shaft_width,
              arrow.head_width, arrow.head_length);
 }
+#endif
 
 void Graphics3D::_drawArrow(const Vec3<float> &position,
                             const Vec3<float> &direction, float lineWidth,

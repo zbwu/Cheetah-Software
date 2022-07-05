@@ -6,7 +6,7 @@
 #ifndef PROJECT_INTERPOLATION_H
 #define PROJECT_INTERPOLATION_H
 
-#include <assert.h>
+#include <cassert>
 #include <type_traits>
 
 namespace Interpolate {

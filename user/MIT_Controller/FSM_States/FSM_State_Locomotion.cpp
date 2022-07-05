@@ -21,10 +21,12 @@ FSM_State_Locomotion<T>::FSM_State_Locomotion(ControlFSMData<T>* _controlFSMData
     : FSM_State<T>(_controlFSMData, FSM_StateName::LOCOMOTION, "LOCOMOTION")
 {
   if(_controlFSMData->_quadruped->_robotType == RobotType::MINI_CHEETAH){
+    // minicheetah controller_dt = 0.002
+    // mpc iterations = 30 / (1000 * 0.002)
     cMPCOld = new ConvexMPCLocomotion(_controlFSMData->controlParameters->controller_dt,
-        //30 / (1000. * _controlFSMData->controlParameters->controller_dt),
-        //22 / (1000. * _controlFSMData->controlParameters->controller_dt),
-        27 / (1000. * _controlFSMData->controlParameters->controller_dt),
+        30 / (1000. * _controlFSMData->controlParameters->controller_dt),
+        // 22 / (1000. * _controlFSMData->controlParameters->controller_dt),
+        // 27 / (1000. * _controlFSMData->controlParameters->controller_dt),
         _controlFSMData->userParameters);
 #ifdef CHEETAH3
   }else if(_controlFSMData->_quadruped->_robotType == RobotType::CHEETAH_3){

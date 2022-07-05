@@ -1,3 +1,4 @@
+#ifdef SAVE_FILE
 #ifndef SAVE_FILE_H
 #define SAVE_FILE_H
 
@@ -76,4 +77,5 @@ void saveValue(T _value, const std::string& folder_name,
   savefile.flush();
 }
 
+#endif
 #endif

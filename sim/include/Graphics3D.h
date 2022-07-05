@@ -43,7 +43,9 @@ class Graphics3D : public QOpenGLWidget, protected QOpenGLFunctions {
   virtual ~Graphics3D();
 
   void setAnimating(bool animating);
+#ifdef CHEETAH3
   size_t setupCheetah3(Vec4<float> color, bool useOld, bool canHide);
+#endif
   size_t setupMiniCheetah(Vec4<float> color, bool useOld, bool canHide);
 
   void lockGfxMutex() { _gfxMutex.lock(); }
@@ -112,11 +114,13 @@ class Graphics3D : public QOpenGLWidget, protected QOpenGLFunctions {
   void _DrawContactForce();
   void _DrawContactPoint();
 
+#if defined(DRAW_DEBUG_PATH) || defined(DRAW_DEBUG_SWINGS)
   void _drawArrow(ArrowVisualization &arrow);
   void _drawBlock(BlockVisualization &box);
   void _drawSphere(SphereVisualization &sphere);
   void _drawCone(ConeVisualization &cone);
   void _drawMesh(MeshVisualization &mesh);
+#endif
   
   void _rotateZtoDirection(const Vec3<float> &direction);
   void _setColor(const Vec4<float> &color) {

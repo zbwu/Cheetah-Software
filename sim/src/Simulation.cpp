@@ -2,8 +2,8 @@
 #include "Dynamics/Quadruped.h"
 #include "Utilities/ParamHandler.hpp"
 
-#include <Configuration.h>
-#include <include/GameController.h>
+// #include <Configuration.h>
+#include "GameController.h"
 #include <unistd.h>
 #include <fstream>
 
@@ -15,19 +15,16 @@
  * Initialize the simulator here.  It is _not_ okay to block here waiting for
  * the robot to connect. Use firstRun() instead!
  */
-Simulation::Simulation(RobotType robot, Graphics3D* window,
-                       SimulatorControlParameters& params, ControlParameters& userParams, std::function<void(void)> uiUpdate)
+Simulation::Simulation(RobotType robot, Graphics3D *window, SimulatorControlParameters &params,
+                       ControlParameters &userParams, std::function<void(void)> uiUpdate)
     : _simParams(params), _userParams(userParams), _tau(12) {
   _uiUpdate = uiUpdate;
   // init parameters
   printf("[Simulation] Load parameters...\n");
-  _simParams
-      .lockMutex();  // we want exclusive access to the simparams at this point
+  _simParams.lockMutex();// we want exclusive access to the simparams at this point
   if (!_simParams.isFullyInitialized()) {
-    printf(
-        "[ERROR] Simulator parameters are not fully initialized.  You forgot: "
-        "\n%s\n",
-        _simParams.generateUnitializedList().c_str());
+    printf("[ERROR] Simulator parameters are not fully initialized. You forgot: \n%s\n",
+           _simParams.generateUnitializedList().c_str());
     throw std::runtime_error("simulator not initialized");
   }
 
@@ -62,19 +59,24 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
     Vec4<float> truthColor, seColor;
     truthColor << 0.2, 0.4, 0.2, 0.6;
     seColor << .75,.75,.75, 1.0;
-    _simRobotID = _robot == RobotType::MINI_CHEETAH ? window->setupMiniCheetah(truthColor, true, true)
-                                                    : window->setupCheetah3(truthColor, true, true);
-    _controllerRobotID = _robot == RobotType::MINI_CHEETAH
-                             ? window->setupMiniCheetah(seColor, false, false)
-                             : window->setupCheetah3(seColor, false, false);
+
+    if (_robot == RobotType::MINI_CHEETAH) {
+      _simRobotID = window->setupMiniCheetah(truthColor, true, true);
+      _controllerRobotID = window->setupMiniCheetah(seColor, false, false);
+#ifdef CHEETAH3
+    } else if (_robot == RobotType::CHEETAH_3) {
+      _simRobotID = window->setupCheetah3(truthColor, true, true);
+      _controllerRobotID = window->setupCheetah3(seColor, false, false);
+#endif
+    } else
+      assert(false);
   }
 
   // init rigid body dynamics
   printf("[Simulation] Build rigid body model...\n");
   _model = _quadruped.buildModel();
   _robotDataModel = _quadruped.buildModel();
-  _simulator =
-      new DynamicsSimulator<double>(_model, (bool)_simParams.use_spring_damper);
+  _simulator = new DynamicsSimulator<double>(_model, (bool)_simParams.use_spring_damper);
   _robotDataSimulator = new DynamicsSimulator<double>(_robotDataModel, false);
 
   DVec<double> zero12(12);
@@ -87,8 +89,7 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
   _robotControllerState.q = zero12;
   _robotControllerState.qd = zero12;
   FBModelState<double> x0;
-  x0.bodyOrientation = rotationMatrixToQuaternion(
-      ori::coordinateRotation(CoordinateAxis::Z, 0.));
+  x0.bodyOrientation = rotationMatrixToQuaternion(ori::coordinateRotation(CoordinateAxis::Z, 0.));
   // Mini Cheetah
   x0.bodyPosition.setZero();
   x0.bodyVelocity.setZero();
@@ -192,17 +193,14 @@ Simulation::Simulation(RobotType robot, Graphics3D* window,
 
   // shared memory fields:
   _sharedMemory.getObject().simToRobot.robotType = _robot;
-  _window->_drawList._visualizationData =
-      &_sharedMemory.getObject().robotToSim.visualizationData;
+  _window->_drawList._visualizationData = &_sharedMemory.getObject().robotToSim.visualizationData;
 
   // load robot control parameters
   printf("[Simulation] Load control parameters...\n");
   if (_robot == RobotType::MINI_CHEETAH) {
-    _robotParams.initializeFromYamlFile(getConfigDirectoryPath() +
-                                        MINI_CHEETAH_DEFAULT_PARAMETERS);
+    _robotParams.initializeFromYamlFile(getConfigDirectoryPath(MINI_CHEETAH_DEFAULT_PARAMETERS));
   } else if (_robot == RobotType::CHEETAH_3) {
-    _robotParams.initializeFromYamlFile(getConfigDirectoryPath() +
-                                        CHEETAH_3_DEFAULT_PARAMETERS);
+    _robotParams.initializeFromYamlFile(getConfigDirectoryPath(CHEETAH_3_DEFAULT_PARAMETERS));
   } else {
     assert(false);
   }
@@ -787,10 +785,9 @@ void Simulation::loadTerrainFile(const std::string& terrainFileName,
         std::string file_name;
         paramHandler.getString(key, "heightmap_file_name", file_name);
         std::ifstream f_height;
-        f_height.open(THIS_COM "/config/" + file_name);
+        f_height.open(getConfigDirectoryPath(file_name));
         if (!f_height.good()) {
-          std::cout << "file reading error: "
-                    << THIS_COM "../config/" + file_name << std::endl;
+          std::cout << "file reading error: " << file_name << std::endl;
         }
         int i(0);
         int j(0);
@@ -842,13 +839,11 @@ void Simulation::updateGraphics() {
   _robotControllerState.bodyPosition =
       _sharedMemory.getObject().robotToSim.mainCheetahVisualization.p.cast<double>();
   for (int i = 0; i < 12; i++)
-    _robotControllerState.q[i] =
-        _sharedMemory.getObject().robotToSim.mainCheetahVisualization.q[i];
+    _robotControllerState.q[i] = _sharedMemory.getObject().robotToSim.mainCheetahVisualization.q[i];
   _robotDataSimulator->setState(_robotControllerState);
   _robotDataSimulator->forwardKinematics();  // calc all body positions
   _window->_drawList.updateRobotFromModel(*_simulator, _simRobotID, true);
-  _window->_drawList.updateRobotFromModel(*_robotDataSimulator,
-                                          _controllerRobotID, false);
+  _window->_drawList.updateRobotFromModel(*_robotDataSimulator, _controllerRobotID, false);
   _window->_drawList.updateAdditionalInfo(*_simulator);
   _window->update();
 }

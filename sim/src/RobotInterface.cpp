@@ -15,11 +15,9 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
   _robotType = robotType;
   printf("[RobotInterface] Load parameters...\n");
   if (_robotType == RobotType::MINI_CHEETAH) {
-    _controlParameters.initializeFromYamlFile(getConfigDirectoryPath() +
-                                              MINI_CHEETAH_DEFAULT_PARAMETERS);
+    _controlParameters.initializeFromYamlFile(getConfigDirectoryPath(MINI_CHEETAH_DEFAULT_PARAMETERS));
   } else if (_robotType == RobotType::CHEETAH_3) {
-    _controlParameters.initializeFromYamlFile(getConfigDirectoryPath() +
-                                              CHEETAH_3_DEFAULT_PARAMETERS);
+    _controlParameters.initializeFromYamlFile(getConfigDirectoryPath(CHEETAH_3_DEFAULT_PARAMETERS));
   } else {
     assert(false);
   }
@@ -33,8 +31,16 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
   printf("[RobotInterface] Init graphics\n");
   Vec4<float> robotColor;
   robotColor << 0.6, 0.2, 0.2, 1.0;
-  _robotID = _robotType == RobotType::MINI_CHEETAH ? gfx->setupMiniCheetah(robotColor, true, false)
-                                                   : gfx->setupCheetah3(robotColor, true, false);
+
+  if (_robotType == RobotType::MINI_CHEETAH)
+    _robotID = gfx->setupMiniCheetah(robotColor, true, false);
+#ifdef CHEETAH3
+  else if (_robotType == RobotType::CHEETAH_3)
+    _robotID = gfx->setupCheetah3(robotColor, true, false);
+#endif
+  else
+    assert(false);
+
   printf("draw list has %lu items\n", _gfx->_drawList._kinematicXform.size());
   _gfx->_drawList._visualizationData = &_visualizationData;
   Checkerboard checker(10, 10, 10, 10);

@@ -59,7 +59,9 @@ class DrawList {
     _cameraOrigin = Vec3<double>::Zero();
     loadFiles();
   }
+#ifdef CHEETAH3
   size_t addCheetah3(Vec4<float> color, bool useOld, bool canHide);
+#endif
   size_t addMiniCheetah(Vec4<float> color, bool useOld, bool canHide);
   void buildDrawList();
   void loadFiles();
@@ -326,8 +328,12 @@ class DrawList {
 
   Vec3<double> _cameraOrigin;
 
+#if CHEETAH3
   size_t _cheetah3LoadIndex = 0, _miniCheetahLoadIndex = 0,
          _sphereLoadIndex = 0, _cubeLoadIndex = 0;
+#else
+  size_t _miniCheetahLoadIndex = 0, _sphereLoadIndex = 0, _cubeLoadIndex = 0;
+#endif
 };
 
 #endif  // PROJECT_DRAWLIST_H

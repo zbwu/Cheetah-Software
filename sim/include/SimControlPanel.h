@@ -17,7 +17,7 @@
 #define DEFAULT_USER_FILE "/default-user-parameters-file.yaml"
 
 #include <lcm/lcm-cpp.hpp>
-#include <src/MiniCheetahDebug.h>
+#include "MiniCheetahDebug.h"
 #include <leg_control_data_lcmt.hpp>
 #include "rs_pointcloud_t.hpp"
 #include "heightmap_t.hpp"

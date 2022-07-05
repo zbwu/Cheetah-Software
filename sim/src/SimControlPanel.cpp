@@ -1,4 +1,5 @@
 #include "SimControlPanel.h"
+#include "moc_SimControlPanel.cpp"
 #include <ControlParameters/ControlParameters.h>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -43,7 +44,7 @@ static void updateQtableWithParameters(ControlParameters& params,
 }
 
 std::string SimControlPanel::getDefaultUserParameterFileName() {
-  std::string path = getConfigDirectoryPath() + DEFAULT_USER_FILE;
+  std::string path = getConfigDirectoryPath(DEFAULT_USER_FILE);
   ParamHandler paramHandler(path);
 
   if(!paramHandler.fileOpenedSuccessfully()) {
@@ -74,7 +75,7 @@ SimControlPanel::SimControlPanel(QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::SimControlPanel),
       _userParameters("user-parameters"),
-      _terrainFileName(getConfigDirectoryPath() + DEFAULT_TERRAIN_FILE),
+      _terrainFileName(getConfigDirectoryPath(DEFAULT_TERRAIN_FILE)),
 #ifdef LOCO_VISION
       _heightmapLCM(getLcmUrl(255)),
       _pointsLCM(getLcmUrl(255)),
@@ -88,7 +89,7 @@ SimControlPanel::SimControlPanel(QWidget* parent)
   updateUiEnable();  // enable/disable buttons as needed.
   updateTerrainLabel(); // display name of loaded terrain file
 
-#ifdef __APPLE__
+#ifndef CHEETAH3
   ui->cheetah3Button->setVisible(false);
   ui->miniCheetahButton->click();
   ui->simulatorButton->click();
@@ -98,7 +99,7 @@ SimControlPanel::SimControlPanel(QWidget* parent)
   _loadedUserSettings = true;
 
   try {
-    _userParameters.defineAndInitializeFromYamlFile(getConfigDirectoryPath() + getDefaultUserParameterFileName());
+    _userParameters.defineAndInitializeFromYamlFile(getConfigDirectoryPath(getDefaultUserParameterFileName()));
   } catch (std::runtime_error& ex) {
     _loadedUserSettings = false;
   }
@@ -113,8 +114,7 @@ SimControlPanel::SimControlPanel(QWidget* parent)
 
   // load simulator parameters
   printf("[SimControlPanel] Init simulator parameters...\n");
-  _parameters.initializeFromYamlFile(getConfigDirectoryPath() +
-                                     SIMULATOR_DEFAULT_PARAMETERS);
+  _parameters.initializeFromYamlFile(getConfigDirectoryPath(SIMULATOR_DEFAULT_PARAMETERS));
   if (!_parameters.isFullyInitialized()) {
     printf(
         "[ERROR] Simulator parameters are not fully initialized.  You forgot: "
@@ -397,8 +397,7 @@ void SimControlPanel::on_startButton_clicked() {
 
   // get run type
   if (!ui->simulatorButton->isChecked() && !ui->robotButton->isChecked()) {
-    createErrorMessage(
-        "Error: you must select either robot or simulation mode");
+    createErrorMessage("Error: you must select either robot or simulation mode");
     return;
   }
 
@@ -430,9 +429,6 @@ void SimControlPanel::on_startButton_clicked() {
       createErrorMessage("FATAL: Exception thrown during simulator setup\n" + std::string(e.what()));
       throw e;
     }
-
-
-
 
     // start sim
     _simThread = std::thread(

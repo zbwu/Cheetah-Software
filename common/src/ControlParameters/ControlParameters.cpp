@@ -330,6 +330,7 @@ ControlParameterValueKind getControlParameterValueKindFromString(const std::stri
  * Add and initialize parameters from a YAML file
  */
 void ControlParameters::defineAndInitializeFromYamlFile(const std::string &path) {
+  bool result = false;
   ParamHandler paramHandler(path);
 
   if (!paramHandler.fileOpenedSuccessfully()) {
@@ -373,34 +374,37 @@ void ControlParameters::defineAndInitializeFromYamlFile(const std::string &path)
     switch (cp->_kind) {
       case ControlParameterValueKind::DOUBLE: {
         double d;
-        assert(paramHandler.getValue(key, d));
+        result = paramHandler.getValue(key, d);
+        assert(result);
         cp->initializeDouble(d);
       } break;
 
       case ControlParameterValueKind::FLOAT: {
         float f;
-        assert(paramHandler.getValue(key, f));
+        result = paramHandler.getValue(key, f);
+        assert(result);
         cp->initializeFloat(f);
       } break;
 
       case ControlParameterValueKind::S64: {
         s64 f;
-        assert(paramHandler.getValue(key, f));
+        result = paramHandler.getValue(key, f);
+        assert(result);
         cp->initializeInteger(f);
       } break;
 
       case ControlParameterValueKind::VEC3_DOUBLE: {
         std::vector<double> vv;
-        assert(paramHandler.getVector(key, vv));
-        assert(vv.size() == 3);
+        result = paramHandler.getVector(key, vv);
+        assert(result && vv.size() == 3);
         Vec3<double> v(vv[0], vv[1], vv[2]);
         cp->initializeVec3d(v);
       } break;
 
       case ControlParameterValueKind::VEC3_FLOAT: {
         std::vector<float> vv;
-        assert(paramHandler.getVector(key, vv));
-        assert(vv.size() == 3);
+        result = paramHandler.getVector(key, vv);
+        assert(result && vv.size() == 3);
         Vec3<float> v(vv[0], vv[1], vv[2]);
         cp->initializeVec3f(v);
       } break;
@@ -412,6 +416,8 @@ void ControlParameters::defineAndInitializeFromYamlFile(const std::string &path)
         break;
     }
   }
+
+  (void) result;
 }
 
 /*!
@@ -419,6 +425,7 @@ void ControlParameters::defineAndInitializeFromYamlFile(const std::string &path)
  * @param path : the file name
  */
 void ControlParameters::initializeFromYamlFile(const std::string& path) {
+  bool result = false;
   ParamHandler paramHandler(path);
 
   if (!paramHandler.fileOpenedSuccessfully()) {
@@ -452,34 +459,37 @@ void ControlParameters::initializeFromYamlFile(const std::string& path) {
     switch (cp._kind) {
       case ControlParameterValueKind::DOUBLE: {
         double d;
-        assert(paramHandler.getValue(key, d));
+        result = paramHandler.getValue(key, d);
+        assert(result);
         cp.initializeDouble(d);
       } break;
 
       case ControlParameterValueKind::FLOAT: {
         float f;
-        assert(paramHandler.getValue(key, f));
+        result = paramHandler.getValue(key, f);
+        assert(result);
         cp.initializeFloat(f);
       } break;
 
       case ControlParameterValueKind::S64: {
         s64 f;
-        assert(paramHandler.getValue(key, f));
+        result = paramHandler.getValue(key, f);
+        assert(result);
         cp.initializeInteger(f);
       } break;
 
       case ControlParameterValueKind::VEC3_DOUBLE: {
         std::vector<double> vv;
-        assert(paramHandler.getVector(key, vv));
-        assert(vv.size() == 3);
+        result = paramHandler.getVector(key, vv);
+        assert(result && vv.size() == 3);
         Vec3<double> v(vv[0], vv[1], vv[2]);
         cp.initializeVec3d(v);
       } break;
 
       case ControlParameterValueKind::VEC3_FLOAT: {
         std::vector<float> vv;
-        assert(paramHandler.getVector(key, vv));
-        assert(vv.size() == 3);
+        result = paramHandler.getVector(key, vv);
+        assert(result && vv.size() == 3);
         Vec3<float> v(vv[0], vv[1], vv[2]);
         cp.initializeVec3f(v);
       } break;
@@ -491,4 +501,6 @@ void ControlParameters::initializeFromYamlFile(const std::string& path) {
         break;
     }
   }
+
+  (void) result;
 }

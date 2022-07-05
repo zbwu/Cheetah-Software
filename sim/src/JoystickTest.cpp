@@ -1,5 +1,6 @@
-#include "../include/JoystickTest.h"
+#include "JoystickTest.h"
 #include "ui_JoystickTest.h"
+#include "moc_JoystickTest.cpp"
 #include <QTimer>
 
 

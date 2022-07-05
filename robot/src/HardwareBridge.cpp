@@ -14,10 +14,7 @@
 #include "Configuration.h"
 
 #include "HardwareBridge.h"
-#ifdef SBUS_CONTROLLER
-//#include "rt/rt_rc_interface.h"
-#include "rt/rt_sbus.h"
-#endif
+#include "rt/rt_rc_interface.h"
 #include "rt/rt_spi.h"
 #ifdef USE_MICROSTRAIN
 #include "rt/rt_vectornav.h"
@@ -251,7 +248,7 @@ void MiniCheetahHardwareBridge::run() {
     printf("[Hardware Bridge] Loading parameters from file...\n");
 
     try {
-      _robotParams.initializeFromYamlFile(THIS_COM "config/mini-cheetah-defaults.yaml");
+      _robotParams.initializeFromYamlFile(getConfigDirectoryPath("mini-cheetah-defaults.yaml"));
     } catch(std::exception& e) {
       printf("Failed to initialize robot parameters from yaml file: %s\n", e.what());
       exit(1);
@@ -266,7 +263,7 @@ void MiniCheetahHardwareBridge::run() {
 
     if(_userControlParameters) {
       try {
-        _userControlParameters->initializeFromYamlFile(THIS_COM "config/mc-mit-ctrl-user-parameters.yaml");
+        _userControlParameters->initializeFromYamlFile(getConfigDirectoryPath("mc-mit-ctrl-user-parameters.yaml"));
       } catch(std::exception& e) {
         printf("Failed to initialize user parameters from yaml file: %s\n", e.what());
         exit(1);

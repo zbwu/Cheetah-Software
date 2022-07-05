@@ -2,6 +2,7 @@ build/
 mc-build/
 cmake-build-*
 .idea/
+.clang-format
 .vscode/
 lcm-types/cheetahlcm
 lcm-types/c_lcm_files
@@ -30,3 +31,4 @@ documentation/doxygen/html
 documentation/doxygen/latex
 .DS_Store
 tags
+log

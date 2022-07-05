@@ -16,6 +16,7 @@
 
 #include "cppTypes.h"
 
+#if defined(DRAW_DEBUG_PATH) || defined(DRAW_DEBUG_SWINGS)
 /*!
  * Debugging sphere
  */
@@ -45,16 +46,6 @@ struct ArrowVisualization {
   float head_width;
   float head_length;
   float shaft_width;
-};
-
-/*!
- * Debugging robot (draws the same type of robot as currently simulating)
- */
-struct CheetahVisualization {
-  Vec12<float> q;
-  Quat<float> quat;
-  Vec3<float> p;
-  Vec4<float> color;
 };
 
 /*!
@@ -92,6 +83,17 @@ struct MeshVisualization {
   float height_max;
   float height_min;
 };
+#endif
+
+/*!
+ * Debugging robot (draws the same type of robot as currently simulating)
+ */
+struct CheetahVisualization {
+    Vec12<float> q;
+    Quat<float> quat;
+    Vec3<float> p;
+    Vec4<float> color;
+};
 
 
 /*!
@@ -100,12 +102,15 @@ struct MeshVisualization {
 struct VisualizationData {
   size_t num_paths = 0, num_arrows = 0, num_cones = 0, num_spheres = 0,
          num_blocks = 0, num_meshes = 0;
+
+#if defined(DRAW_DEBUG_PATH) || defined(DRAW_DEBUG_SWINGS)
   SphereVisualization spheres[VISUALIZATION_MAX_ITEMS];
   BlockVisualization blocks[VISUALIZATION_MAX_ITEMS];
   ArrowVisualization arrows[VISUALIZATION_MAX_ITEMS];
   ConeVisualization cones[VISUALIZATION_MAX_ITEMS];
   PathVisualization paths[VISUALIZATION_MAX_PATHS];
   MeshVisualization meshes[VISUALIZATION_MAX_MESHES];
+#endif
 
   /*!
    * Remove all debug data
@@ -115,6 +120,7 @@ struct VisualizationData {
     num_meshes = 0;
   }
 
+#if defined(DRAW_DEBUG_PATH) || defined(DRAW_DEBUG_SWINGS)
   /*!
    * Add a new sphere
    * @return A sphere, or nullptr if there isn't enough room
@@ -182,6 +188,7 @@ struct VisualizationData {
     }
     return nullptr;
   }
+#endif
 };
 
 #endif

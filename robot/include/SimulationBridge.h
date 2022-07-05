@@ -20,8 +20,8 @@ class SimulationBridge {
  public:
   explicit SimulationBridge(RobotType robot, RobotController* robot_ctrl) : 
     _robot(robot) {
-     _fakeTaskManager = new PeriodicTaskManager;
-    _robotRunner = new RobotRunner(robot_ctrl, _fakeTaskManager, 0, "robot-task");
+     _taskManager = new PeriodicTaskManager;
+    _robotRunner = new RobotRunner(robot_ctrl, _taskManager, 0, "robot-task");
     _userParams = robot_ctrl->getUserControlParameters();
 
  }
@@ -29,19 +29,17 @@ class SimulationBridge {
   void handleControlParameters();
   void runRobotControl();
   ~SimulationBridge() {
-    delete _fakeTaskManager;
+    delete _taskManager;
     delete _robotRunner;
   }
-  #ifdef linux
-  #ifdef SBUS_CONTROLLER
+
+#ifdef SBUS_CONTROLLER
   void run_sbus();
-  #endif
-  #endif
+#endif
 
  private:
-  PeriodicTaskManager taskManager;
   bool _firstControllerRun = true;
-  PeriodicTaskManager* _fakeTaskManager = nullptr;
+  PeriodicTaskManager* _taskManager = nullptr;
   RobotType _robot;
   RobotRunner* _robotRunner = nullptr;
   SimulatorMode _simMode;
@@ -50,10 +48,8 @@ class SimulationBridge {
   ControlParameters* _userParams = nullptr;
   u64 _iterations = 0;
 
-#ifdef linux
 #ifdef SBUS_CONTROLLER
   std::thread* sbus_thread;
-#endif
 #endif
 };
 

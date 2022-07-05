@@ -13,6 +13,9 @@
 #include <vector>
 #include "cppTypes.h"
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 /*!
  * Are two floating point values almost equal?
  * @param a : first value
@@ -182,7 +185,7 @@ static inline std::string boolToString(bool b) {
 void writeStringToFile(const std::string& fileName,
                        const std::string& fileData);
 std::string getCurrentTimeAndDate();
-std::string getConfigDirectoryPath();
+std::string getConfigDirectoryPath(const fs::path &path);
 
 /*!
  * Get the rotation matrix coincide with euler angle

@@ -9,13 +9,18 @@
 
 #include "SimUtilities/GamepadCommand.h"
 
-#ifdef QT_GAMEPAD
-#include <QtCore/QObject>
+#include <QtGlobal>
 
-class QGamepad;  // for an unknown reason, #including <QtGamepad/QGamepad> here
-                 // makes compilation *very* slow
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+#define QT_GAMEPAD 1
+#endif
+
+#ifdef QT_GAMEPAD
+#include <QGamepad>
+#include <QGamepadManager>
+#include <QGamepadKeyNavigation>
 #else
-#include <QtCore/QObject>
+#include <QObject>
 #include <SDL.h>
 #endif
 

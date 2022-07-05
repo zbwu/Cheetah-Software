@@ -12,7 +12,6 @@
 #include "ControlParameters/RobotParameters.h"
 #include "Controllers/StateEstimatorContainer.h"
 #include "SimUtilities/IMUTypes.h"
-#include "rt/rt_rc_interface.h"
 #include "Controllers/ContactEstimator.h"
 #include "Controllers/DesiredStateCommand.h"
 #include "Controllers/LegController.h"

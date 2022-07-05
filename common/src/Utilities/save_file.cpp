@@ -1,3 +1,4 @@
+#ifdef SAVE_FILE
 #include "include/Utilities/save_file.h"
 
 void cleaning_file(const std::string& folder_name, const std::string& file_name,
@@ -28,3 +29,4 @@ void create_folder(const std::string& folder_name) {
     }
   }
 }
+#endif

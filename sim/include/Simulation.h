@@ -91,6 +91,8 @@ class Simulation {
     delete _robotDataSimulator;
     delete _imuSimulator;
     delete _lcm;
+
+    _sharedMemory.destory();
   }
 
   const FBModelState<double>& getRobotState() { return _simulator->getState(); }

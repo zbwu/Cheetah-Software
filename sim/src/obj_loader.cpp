@@ -8,7 +8,7 @@
 
 #include "obj_loader.h"
 
-#include <assert.h>
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>

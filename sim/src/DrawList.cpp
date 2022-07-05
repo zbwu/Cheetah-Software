@@ -10,8 +10,10 @@
 void DrawList::loadFiles() {
   printf("[DrawList] Load object files...\n");
   std::vector<std::string> names = {
-      "c3_body.obj",         "mini_abad.obj",
+#ifdef CHEETAH3
+      "c3_body.obj",         "c3_abad.obj",
       "c3_upper_link.obj",   "c3_lower_link.obj",
+#endif
       "mini_body.obj",       "mini_abad.obj",
       "mini_upper_link.obj", "mini_lower_link.obj",
       "sphere.obj",          "cube.obj"};
@@ -35,11 +37,19 @@ void DrawList::loadFiles() {
 
     _nUnique++;
   }
+#ifdef CHEETAH3
   _sphereLoadIndex = 8;
   _cubeLoadIndex = 9;
   _miniCheetahLoadIndex = 4;
   _cheetah3LoadIndex = 0;
+#else
+  _sphereLoadIndex = 4;
+  _cubeLoadIndex = 5;
+  _miniCheetahLoadIndex = 0;
+#endif
 }
+
+#ifdef CHEEAH3
 /*!
  * Load the cheetah 3 model and build the draw list.
  * Returns an index number that can later be used to update the position of the
@@ -124,6 +134,7 @@ size_t DrawList::addCheetah3(Vec4<float> color, bool useOld, bool canHide) {
   buildDrawList();
   return j0;
 }
+#endif
 
 /*!
  * Load the mini cheetah model and builds the draw list.
