@@ -119,5 +119,5 @@ void FSM_State_Passive<T>::onExit() {
   // Nothing to clean up when exiting
 }
 
-// template class FSM_State_Passive<double>;
+template class FSM_State_Passive<double>;
 template class FSM_State_Passive<float>;

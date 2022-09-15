@@ -27,9 +27,45 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>  //Needed for SPI port
+#ifdef LCM_MSG
 #include <spi_command_t.hpp>
 #include <spi_data_t.hpp>
 #include <spi_torque_t.hpp>
+#else
+typedef struct _spi_command_t {
+  float q_des_abad[4];
+  float q_des_hip[4];
+  float q_des_knee[4];
+  float qd_des_abad[4];
+  float qd_des_hip[4];
+  float qd_des_knee[4];
+  float kp_abad[4];
+  float kp_hip[4];
+  float kp_knee[4];
+  float kd_abad[4];
+  float kd_hip[4];
+  float kd_knee[4];
+  float tau_abad_ff[4];
+  float tau_hip_ff[4];
+  float tau_knee_ff[4];
+  int32_t flags[4];
+} spi_command_t;
+typedef struct _spi_data_t {
+  float q_abad[4];
+  float q_hip[4];
+  float q_knee[4];
+  float qd_abad[4];
+  float qd_hip[4];
+  float qd_knee[4];
+  int32_t flags[4];
+  int32_t spi_driver_status;
+} spi_data_t;
+typedef struct _spi_torque_t {
+  float tau_abad[4];
+  float tau_hip[4];
+  float tau_knee[4];
+} spi_torque_t;
+#endif
 
 #define K_EXPECTED_COMMAND_SIZE 256
 #define K_WORDS_PER_MESSAGE 66

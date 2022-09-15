@@ -49,6 +49,7 @@ void HardwareBridge::initCommon() {
   prefaultStack();
   printf("[HardwareBridge] Init scheduler\n");
   setupScheduler();
+#ifdef LCM_MSG
   if (!_interfaceLCM.good()) {
     initError("_interfaceLCM failed to initialize\n", false);
   }
@@ -60,14 +61,17 @@ void HardwareBridge::initCommon() {
 
   printf("[HardwareBridge] Start interface LCM handler\n");
   _interfaceLcmThread = std::thread(&HardwareBridge::handleInterfaceLCM, this);
+#endif
 }
 
+#ifdef LCM_MSG
 /*!
  * Run interface LCM
  */
 void HardwareBridge::handleInterfaceLCM() {
   while (!_interfaceLcmQuit) _interfaceLCM.handle();
 }
+#endif
 
 /*!
  * Writes to a 16 KB buffer on the stack. If we are using 4K pages for our
@@ -101,6 +105,7 @@ void HardwareBridge::setupScheduler() {
   }
 }
 
+#ifdef LCM_MSG
 /*!
  * LCM Handler for gamepad message
  */
@@ -111,7 +116,9 @@ void HardwareBridge::handleGamepadLCM(const lcm::ReceiveBuffer* rbuf,
   (void)chan;
   _gamepadCommand.set(msg);
 }
+#endif
 
+#ifdef LCM_MSG
 /*!
  * LCM Handler for control parameters
  */
@@ -223,6 +230,7 @@ void HardwareBridge::handleControlParameter(
   }
   _interfaceLCM.publish("interface_response", &_parameter_response_lcmt);
 }
+#endif
 
 
 #ifdef USE_MICROSTRAIN
@@ -231,10 +239,17 @@ MiniCheetahHardwareBridge::MiniCheetahHardwareBridge(RobotController* robot_ctrl
   _load_parameters_from_file = load_parameters_from_file;
 }
 #else
+#ifdef LCM_MSG
 MiniCheetahHardwareBridge::MiniCheetahHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file)
     : HardwareBridge(robot_ctrl), _spiLcm(getLcmUrl(255)) {
   _load_parameters_from_file = load_parameters_from_file;
 }
+#else
+MiniCheetahHardwareBridge::MiniCheetahHardwareBridge(RobotController* robot_ctrl, bool load_parameters_from_file)
+    : HardwareBridge(robot_ctrl) {
+  _load_parameters_from_file = load_parameters_from_file;
+}
+#endif
 #endif
 
 /*!
@@ -329,11 +344,13 @@ void MiniCheetahHardwareBridge::run() {
   // robot controller start
   _robotRunner->start();
 
+#ifdef LCM_MSG
   // visualization start
   PeriodicMemberFunction<MiniCheetahHardwareBridge> visualizationLCMTask(
       &taskManager, .0167, "lcm-vis",
       &MiniCheetahHardwareBridge::publishVisualizationLCM, this);
   visualizationLCMTask.start();
+#endif
 
 #ifdef SBUS_CONTROLLER
   // rc controller
@@ -429,6 +446,7 @@ void Cheetah3HardwareBridge::initHardware() {
  * Run Mini Cheetah SPI
  */
 void MiniCheetahHardwareBridge::runSpi() {
+#ifdef LCM_MSG
   spi_command_t* cmd = get_spi_command();
   spi_data_t* data = get_spi_data();
 
@@ -438,6 +456,9 @@ void MiniCheetahHardwareBridge::runSpi() {
 
   _spiLcm.publish("spi_data", data);
   _spiLcm.publish("spi_command", cmd);
+#else
+  spi_driver_run();
+#endif
 }
 
 #ifdef CHEETAH3
@@ -518,6 +539,7 @@ void Cheetah3HardwareBridge::publishEcatLCM() {
 }
 #endif
 
+#ifdef LCM_MSG
 /*!
  * Send LCM visualization data
  */
@@ -538,6 +560,7 @@ void HardwareBridge::publishVisualizationLCM() {
 
   _visualizationLCM.publish("main_cheetah_visualization", &visualization_data);
 }
+#endif
 
 #ifdef CHEETAH3
 Cheetah3HardwareBridge::Cheetah3HardwareBridge(RobotController *rc) : HardwareBridge(rc),  _ecatLCM(getLcmUrl(255)) {

@@ -12,7 +12,9 @@
 
 #include <linux/spi/spidev.h>
 #include "rt/rt_spi.h"
+#ifdef LCM_MSG
 #include <lcm/lcm-cpp.hpp>
+#endif
 
 unsigned char spi_mode = SPI_MODE_0;
 unsigned char spi_bits_per_word = 8;
@@ -347,6 +349,7 @@ void spi_driver_run() {
   pthread_mutex_unlock(&spi_mutex);
 }
 
+#ifdef LCM_MSG
 /*!
  * Get the spi command
  */
@@ -358,5 +361,6 @@ spi_command_t *get_spi_command() {
  * Get the spi data
  */
 spi_data_t *get_spi_data() { return &spi_data_drv; }
+#endif
 
 #endif

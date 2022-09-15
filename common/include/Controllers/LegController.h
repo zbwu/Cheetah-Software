@@ -12,8 +12,10 @@
 #define PROJECT_LEGCONTROLLER_H
 
 #include "cppTypes.h"
+#ifdef LCM_MSG
 #include "leg_control_command_lcmt.hpp"
 #include "leg_control_data_lcmt.hpp"
+#endif
 #include "Dynamics/Quadruped.h"
 #include "SimUtilities/SpineBoard.h"
 #include "SimUtilities/ti_boardcontrol.h"
@@ -71,7 +73,9 @@ class LegController {
   void updateCommand(TiBoardCommand* tiBoardCommand);
 #endif
   void setEnabled(bool enabled) { _legsEnabled = enabled; };
+#ifdef LCM_MSG
   void setLcm(leg_control_data_lcmt* data, leg_control_command_lcmt* command);
+#endif
 
 #ifdef CHEETAH3
   /*!

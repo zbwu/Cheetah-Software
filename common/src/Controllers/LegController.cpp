@@ -228,6 +228,7 @@ void LegController<T>::updateCommand(TiBoardCommand* tiBoardCommand) {
 }
 #endif
 
+#ifdef LCM_MSG
 /*!
  * Set LCM debug data from leg commands and data
  */
@@ -255,6 +256,7 @@ void LegController<T>::setLcm(leg_control_data_lcmt *lcmData, leg_control_comman
         }
     }
 }
+#endif
 
 template struct LegControllerCommand<double>;
 template struct LegControllerCommand<float>;

@@ -4,7 +4,6 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "Utilities/ParamHandler.hpp"
-#include <leg_control_command_lcmt.hpp>
 #include "ui_SimControlPanel.h"
 #include "JoystickTest.h"
 
@@ -74,6 +73,7 @@ std::string SimControlPanel::getDefaultUserParameterFileName() {
 SimControlPanel::SimControlPanel(QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::SimControlPanel),
+#ifdef LCM_MSG
       _userParameters("user-parameters"),
       _terrainFileName(getConfigDirectoryPath(DEFAULT_TERRAIN_FILE)),
 #ifdef LOCO_VISION
@@ -83,6 +83,10 @@ SimControlPanel::SimControlPanel(QWidget* parent)
       _ctrlVisionLCM(getLcmUrl(255)),
 #endif
       _miniCheetahDebugLCM(getLcmUrl(255))
+#else
+      _userParameters("user-parameters"),
+      _terrainFileName(getConfigDirectoryPath(DEFAULT_TERRAIN_FILE))
+#endif
 {
 
   ui->setupUi(this); // QT setup
@@ -141,8 +145,10 @@ SimControlPanel::SimControlPanel(QWidget* parent)
   _ctrlVisionLCMThread = std::thread(&SimControlPanel::ctrlVisionLCMThread, this);
 #endif
 
+#ifdef LCM_MSG
   _miniCheetahDebugLCM.subscribe("leg_control_data", &SimControlPanel::handleSpiDebug, this);
   _miniCheetahDebugLCMThread = std::thread(&SimControlPanel::miniCheetahDebugLCMThread, this);
+#endif
 
 }
 
@@ -240,6 +246,7 @@ void SimControlPanel::handleHeightmapLCM(const lcm::ReceiveBuffer *rbuf,
 }
 #endif
 
+#ifdef LCM_MSG
 void SimControlPanel::handleSpiDebug(const lcm::ReceiveBuffer *rbuf, const std::string &chan,
                                      const leg_control_data_lcmt *msg) {
   (void)rbuf;
@@ -277,12 +284,15 @@ void SimControlPanel::handleSpiDebug(const lcm::ReceiveBuffer *rbuf, const std::
   }
 
 }
+#endif
 
 
 SimControlPanel::~SimControlPanel() {
   if (_startSpiDebug) {
     _startSpiDebug = false;
+#ifdef LCM_MSG
     _miniCheetahDebugLCMThread.join();
+#endif
   }
 
   // macos need exit all thread before exit main program

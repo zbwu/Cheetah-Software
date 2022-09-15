@@ -42,24 +42,34 @@ std::string getCurrentTimeAndDate() {
  */
 std::string getConfigDirectoryPath(const fs::path &path) {
 
-  fs::path p1 = fs::path("/opt/locomotion/config/") / path.filename();
-  fs::path p2 = fs::path("./config/") / path.filename();
-  fs::path p3 = fs::path("../config/") / path.filename();
+  fs::path p = fs::path();
+  fs::path opt = fs::path("/opt/locomotion/config/") / path.filename();
 
-  fs::path p = "";
+  if (fs::exists(opt)) {
+    p = opt;
+  } else {
+    fs::path cwd = fs::current_path();
+    fs::path config = fs::path("config");
 
-  if (fs::exists(p1))
-    p = p1;
-  else if (fs::exists(p2))
-    p = p2;
-  else if (fs::exists(p3))
-    p = p3;
+    for (int i = 0; i < 5; i++) {
+      fs::path pp = cwd / config / path.filename();
+      if (fs::exists(pp)) {
+        p = pp;
+        break;
+      } else {
+        cwd = cwd.parent_path();
+      }
+    }
+  }
 
-  // std::cout << "config path: " << p << std::endl;
+  if (p.empty()) {
+    throw std::runtime_error("ERROR: %s not found\n");
+  }
 
   return p; 
 }
 
+#ifdef LCM_MSG
 /*!
  * Get the LCM URL with desired TTL.
  */
@@ -67,3 +77,4 @@ std::string getLcmUrl(s64 ttl) {
   assert(ttl >= 0 && ttl <= 255);
   return "udpm://239.255.76.67:7667?ttl=" + std::to_string(ttl);
 }
+#endif

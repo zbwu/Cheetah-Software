@@ -127,10 +127,10 @@ class FSM_State {
 
  private:
   // Create the cartesian P gain matrix
-  Mat3<float> kpMat;
+  Mat3<T> kpMat;
 
   // Create the cartesian D gain matrix
-  Mat3<float> kdMat;
+  Mat3<T> kdMat;
 };
 
 #endif  // FSM_State_H

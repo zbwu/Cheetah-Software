@@ -28,6 +28,7 @@ Simulation::Simulation(RobotType robot, Graphics3D *window, SimulatorControlPara
     throw std::runtime_error("simulator not initialized");
   }
 
+#ifdef LCM_MSG
   // init LCM
   if (_simParams.sim_state_lcm) {
     printf("[Simulation] Setup LCM...\n");
@@ -37,6 +38,7 @@ Simulation::Simulation(RobotType robot, Graphics3D *window, SimulatorControlPara
       throw std::runtime_error("lcm bad");
     }
   }
+#endif
 
   // init quadruped info
   printf("[Simulation] Build quadruped...\n");
@@ -459,11 +461,13 @@ void Simulation::highLevelControl() {
   _sharedMemory.getObject().simToRobot.mode = SimulatorMode::RUN_CONTROLLER;
   _sharedMemory.simulatorIsDone();
 
+#ifdef LCM_MSG
   // wait for robot code to finish (and send LCM while waiting)
   if (_lcm) {
     buildLcmMessage();
     _lcm->publish(SIM_LCM_NAME, &_simLCM);
   }
+#endif
 
   // first make sure we haven't killed the robot code
   if (_wantStop) return;
@@ -497,6 +501,7 @@ void Simulation::highLevelControl() {
   _highLevelIterations++;
 }
 
+#ifdef LCM_MSG
 void Simulation::buildLcmMessage() {
   _simLCM.time = _currentSimTime;
   _simLCM.timesteps = _highLevelIterations;
@@ -537,6 +542,7 @@ void Simulation::buildLcmMessage() {
     }
   }
 }
+#endif
 
 /*!
  * Add an infinite collision plane to the simulator

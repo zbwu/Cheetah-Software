@@ -22,10 +22,34 @@ Cheetah-3-Documentation-Control:
 #endif
 
 #include <Eigen/Dense>
-#include <lcm/lcm-cpp.hpp>
 #include <qpOASES.hpp>
+#ifdef LCM_MSG
+#include <lcm/lcm-cpp.hpp>
 #include "qp_controller_data_t.hpp"
 #include "sim_command_t.hpp"
+#else
+typedef struct _qp_controller_data_t {
+  double exit_flag;
+  double nWSR;
+  double cpu_time_microseconds;
+  double xOpt[12];
+  double p_des[3];
+  double p_act[3];
+  double v_des[3];
+  double v_act[3];
+  double O_err[3];
+  double omegab_des[3];
+  double omegab_act[3];
+  double lbA[20];
+  double ubA[20];
+  double C_times_f[20];
+  double b_control[6];
+  double b_control_Opt[6];
+  double active;
+  double pfeet_des[12];
+  double pfeet_act[12];
+} qp_controller_data_t;
+#endif
 
 static const int NUM_VARIABLES_QP = 12;
 static const int NUM_CONSTRAINTS_QP = 20;
@@ -86,9 +110,13 @@ class BalanceController {
   void publish_data_lcm();
 
  private:
+#ifdef LCM_MSG
   lcm::LCM* lcm;
   qp_controller_data_t qp_controller_data, qp_controller_data_publish;
   sim_command_t command;
+#else
+   qp_controller_data_t qp_controller_data;
+#endif
 
   /* Fixed-Size qpOASES data */
   QProblem QProblemObj_qpOASES;

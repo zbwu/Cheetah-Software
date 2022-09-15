@@ -1,11 +1,6 @@
 # Source/Include files
-include_directories(".")
-include_directories("include/" )                 # common includes
-include_directories("../lcm-types/cpp/")
-include_directories("../third-party/osqp/include")       # osqp includes
-include_directories("../third-party/yaml-cpp/include")
-include_directories("../third-party/JCQP")
-include_directories("FootstepPlanner")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/FootstepPlanner")
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${PROJECT_SOURCE_DIR})
 

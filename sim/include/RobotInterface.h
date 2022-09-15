@@ -9,15 +9,17 @@
 #include <ControlParameters/RobotParameters.h>
 #include <Dynamics/Quadruped.h>
 #include <Utilities/PeriodicTask.h>
-#include <cheetah_visualization_lcmt.hpp>
 #include <condition_variable>
-#include <lcm/lcm-cpp.hpp>
 #include <mutex>
 #include <thread>
 #include "Graphics3D.h"
+#ifdef LCM_MSG
+#include <lcm/lcm-cpp.hpp>
+#include <cheetah_visualization_lcmt.hpp>
 #include "control_parameter_request_lcmt.hpp"
 #include "control_parameter_respones_lcmt.hpp"
 #include "gamepad_lcmt.hpp"
+#endif
 
 #define ROBOT_INTERFACE_UPDATE_PERIOD (1.f / 60.f)
 #define INTERFACE_LCM_NAME "interface"
@@ -31,11 +33,14 @@ class RobotInterface : PeriodicTask {
   RobotControlParameters& getParams() { return _controlParameters; }
   void startInterface();
   void stopInterface();
+#ifdef LCM_MSG
   void lcmHandler();
+#endif
   void sendControlParameter(const std::string& name,
                             ControlParameterValue value,
                             ControlParameterValueKind kind, bool isUser);
 
+#ifdef LCM_MSG
   void handleControlParameter(const lcm::ReceiveBuffer* rbuf,
                               const std::string& chan,
                               const control_parameter_respones_lcmt* msg);
@@ -43,6 +48,7 @@ class RobotInterface : PeriodicTask {
   void handleVisualizationData(const lcm::ReceiveBuffer* rbuf,
                                const std::string& chan,
                                const cheetah_visualization_lcmt* msg);
+#endif
 
   void init() {}
   void run();
@@ -54,10 +60,12 @@ class RobotInterface : PeriodicTask {
 
  private:
   PeriodicTaskManager _taskManager;
+#ifdef LCM_MSG
   gamepad_lcmt _gamepad_lcmt;
   control_parameter_request_lcmt _parameter_request_lcmt;
   bool _pendingControlParameterSend = false;
   lcm::LCM _lcm;
+#endif
   uint64_t _robotID;
   std::thread _lcmThread;
   VisualizationData _visualizationData;

@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <Utilities/Timer.h>
-#include <QpProblem.h>
 
 //#define K_PRINT_EVERYTHING
 #define BIG_NUMBER 5e10

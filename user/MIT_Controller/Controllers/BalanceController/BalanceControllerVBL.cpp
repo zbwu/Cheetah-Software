@@ -33,6 +33,7 @@ BalanceControllerVBL::BalanceControllerVBL() :  QProblemObj_qpOASES(vblNUM_VARIA
    QPFinished = false;
 
 
+#ifdef LCM_MSG
    lcm = new lcm::LCM("udpm://239.255.76.67:7667?ttl=1");
    if (lcm->good())
    {
@@ -43,6 +44,7 @@ BalanceControllerVBL::BalanceControllerVBL() :  QProblemObj_qpOASES(vblNUM_VARIA
       printf("LCM IN BALANCE CONTROLLER FAILED\n");
       exit(-1);
    }
+#endif
 
 
    // Eigen QP matrices
@@ -252,7 +254,9 @@ void BalanceControllerVBL::solveQP(double* xOpt)
    }
  
    calc_constraint_check();
+#ifdef LCM_MSG
    two_contact_stand_data_publish = two_contact_stand_data;
+#endif
 }
 
 
@@ -299,7 +303,9 @@ void BalanceControllerVBL::solveQP_nonThreaded(double* xOpt)
   QProblemObj_qpOASES.reset();
 
   calc_constraint_check();
+#ifdef LCM_MSG
   two_contact_stand_data_publish = two_contact_stand_data;
+#endif
 }
 
 /* --------------- Control Math ------------ */
@@ -554,10 +560,12 @@ void BalanceControllerVBL::calc_lbA_ubA_qpOASES()
 }
 
 
+#ifdef LCM_MSG
 void BalanceControllerVBL::publish_data_lcm()
 {  
    lcm->publish("CONTROLLER_two_contact_stand_data", &two_contact_stand_data_publish);
 }
+#endif
 
 void BalanceControllerVBL::update_log_variables(double* rpy_des_in, double* rpy_act_in)
 {

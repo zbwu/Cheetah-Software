@@ -176,5 +176,5 @@ void FSM_State_JointPD<T>::onExit() {
   // Nothing to clean up when exiting
 }
 
-// template class FSM_State_JointPD<double>;
+template class FSM_State_JointPD<double>;
 template class FSM_State_JointPD<float>;

@@ -20,8 +20,12 @@
 RobotRunner::RobotRunner(RobotController* robot_ctrl, 
     PeriodicTaskManager* manager, 
     float period, std::string name):
+#ifdef LCM_MSG
   PeriodicTask(manager, period, name),
   _lcm(getLcmUrl(255)) {
+#else
+  PeriodicTask(manager, period, name) {
+#endif
 
     _robot_ctrl = robot_ctrl;
   }
@@ -214,6 +218,7 @@ void RobotRunner::setupStep() {
 #ifdef SBUS_CONTROLLER
   get_rc_control_settings(&rc_control);
 #endif
+  // TODO: support BT local gamepad, original gamepad is lcm remote gamepad
   // todo safety checks, sanity checks, etc...
 }
 
@@ -230,11 +235,13 @@ void RobotRunner::finalizeStep() {
   } else {
     assert(false);
   }
+#ifdef LCM_MSG
   _legController->setLcm(&leg_control_data_lcm, &leg_control_command_lcm);
   _stateEstimate.setLcm(state_estimator_lcm);
   _lcm.publish("leg_control_command", &leg_control_command_lcm);
   _lcm.publish("leg_control_data", &leg_control_data_lcm);
   _lcm.publish("state_estimator", &state_estimator_lcm);
+#endif
   _iterations++;
 }
 

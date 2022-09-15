@@ -17,9 +17,11 @@
 
 #include <Eigen/Dense>
 #include <qpOASES.hpp>
+#ifdef LCM_MSG
 #include <lcm/lcm-cpp.hpp>
 #include "sim_command_t.hpp"
 #include "qp_controller_data_t.hpp"
+#endif
 
 
 static const int NUM_VARIABLES_QP_DES = 4;

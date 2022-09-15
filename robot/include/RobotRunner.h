@@ -21,10 +21,12 @@
 #include "SimUtilities/GamepadCommand.h"
 #include "SimUtilities/VisualizationData.h"
 #include "Utilities/PeriodicTask.h"
+#ifdef LCM_MSG
+#include <lcm/lcm-cpp.hpp>
 #include "cheetah_visualization_lcmt.hpp"
 #include "state_estimator_lcmt.hpp"
+#endif
 #include "RobotController.h"
-#include <lcm/lcm-cpp.hpp>
 
 class RobotRunner : public PeriodicTask {
  public:
@@ -72,10 +74,12 @@ class RobotRunner : public PeriodicTask {
   bool _cheaterModeEnabled = false;
   DesiredStateCommand<float>* _desiredStateCommand;
   rc_control_settings rc_control;
+#ifdef LCM_MSG
   lcm::LCM _lcm;
   leg_control_command_lcmt leg_control_command_lcm;
   state_estimator_lcmt state_estimator_lcm;
   leg_control_data_lcmt leg_control_data_lcm;
+#endif
   // Contact Estimator to calculate estimated forces and contacts
 
   FloatingBaseModel<float> _model;

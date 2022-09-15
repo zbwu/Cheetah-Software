@@ -350,6 +350,6 @@ void ControlFSM<T>::printInfo(int opt) {
   }
 }
 
-// template class ControlFSM<double>; This should be fixed... need to make
-// RobotRunner a template
+
+template class ControlFSM<double>;
 template class ControlFSM<float>;

@@ -1,16 +1,11 @@
-include_directories("./")
-include_directories("./Controllers")
-include_directories("../../robot/include")
-include_directories("../../common/include")
-include_directories("../../common/FootstepPlanner")
-include_directories("../../third-party/qpOASES/include")
-include_directories("../../third-party/JCQP")
-include_directories("../../third-party/Goldfarb_Optimizer")
-include_directories("../../third-party/yaml-cpp/include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Controllers")
+include_directories("${CMAKE_SOURCE_DIR}/robot/include")
+include_directories("${CMAKE_SOURCE_DIR}/common/include")
+include_directories("${CMAKE_SOURCE_DIR}/common/FootstepPlanner")
 
-include_directories("../../lcm-types/cpp")
 include_directories(${CMAKE_BINARY_DIR})
-include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR})
 
 file(GLOB sources
     "FSM_States/ControlFSM.cpp"

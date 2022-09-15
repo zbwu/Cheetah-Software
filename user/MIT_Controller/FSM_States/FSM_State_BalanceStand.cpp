@@ -264,5 +264,5 @@ void FSM_State_BalanceStand<T>::BalanceStandStep() {
   _wbc_ctrl->run(_wbc_data, *this->_data);
 }
 
-// template class FSM_State_BalanceStand<double>;
+template class FSM_State_BalanceStand<double>;
 template class FSM_State_BalanceStand<float>;

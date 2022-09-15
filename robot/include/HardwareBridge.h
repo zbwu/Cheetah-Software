@@ -15,7 +15,6 @@
 #define TASK_PRIORITY 49      // linux priority, this is not the nice value
 
 #include <string>
-#include <lcm/lcm-cpp.hpp>
 
 #ifdef LORD_IMU
 #include <lord_imu/LordImu.h>
@@ -23,12 +22,19 @@
 
 #include "RobotRunner.h"
 #include "Utilities/PeriodicTask.h"
+#ifdef LCM_MSG
+#include <lcm/lcm-cpp.hpp>
 #include "control_parameter_request_lcmt.hpp"
 #include "control_parameter_respones_lcmt.hpp"
 #include "gamepad_lcmt.hpp"
+#ifdef LORD_IMU
 #include "microstrain_lcmt.hpp"
+#endif
+#endif
+#ifdef CHEETAH3
 #include "ecat_command_t.hpp"
 #include "ecat_data_t.hpp"
+#endif
 
 
 
@@ -38,9 +44,13 @@
 class HardwareBridge {
  public:
   HardwareBridge(RobotController* robot_ctrl)
+#ifdef LCM_MSG
       : statusTask(&taskManager, 0.5f),
         _interfaceLCM(getLcmUrl(255)),
         _visualizationLCM(getLcmUrl(255)) {
+#else
+      : statusTask(&taskManager, 0.5f) {
+#endif
     _controller = robot_ctrl;
     _userControlParameters = robot_ctrl->getUserControlParameters();
         }
@@ -49,6 +59,7 @@ class HardwareBridge {
   void initError(const char* reason, bool printErrno = false);
   void initCommon();
   ~HardwareBridge() { delete _robotRunner; }
+  #ifdef LCM_MSG
   void handleGamepadLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
                         const gamepad_lcmt* msg);
 
@@ -58,6 +69,7 @@ class HardwareBridge {
                               const control_parameter_request_lcmt* msg);
 
   void publishVisualizationLCM();
+  #endif
 
   #ifdef SBUS_CONTROLLER
   void run_sbus();
@@ -69,9 +81,11 @@ class HardwareBridge {
   GamepadCommand _gamepadCommand;
   VisualizationData _visualizationData;
   CheetahVisualization _mainCheetahVisualization;
+  #ifdef LCM_MSG
   lcm::LCM _interfaceLCM;
   lcm::LCM _visualizationLCM;
   control_parameter_respones_lcmt _parameter_response_lcmt;
+  #endif
   SpiData _spiData;
   SpiCommand _spiCommand;
 
@@ -110,7 +124,9 @@ class MiniCheetahHardwareBridge : public HardwareBridge {
 
  private:
   VectorNavData _vectorNavData;
+#ifdef LCM_MSG
   lcm::LCM _spiLcm;
+#endif
 #ifdef USE_MICROSTRAIN
   lcm::LCM _microstrainLcm;
   std::thread _microstrainThread;

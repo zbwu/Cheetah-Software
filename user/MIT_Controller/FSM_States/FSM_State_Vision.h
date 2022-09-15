@@ -5,12 +5,14 @@
 #include <Controllers/VisionMPC/VisionMPCLocomotion.h>
 #include "FSM_State.h"
 #include <thread>
+#ifdef LCM_MSG
 #include <lcm/lcm-cpp.hpp>
 #include "heightmap_t.hpp"
 #include "traversability_map_t.hpp"
 #include "velocity_visual_t.hpp"
 #include "obstacle_visual_t.hpp"
 #include "localization_lcmt.hpp"
+#endif
 
 template<typename T> class WBC_Ctrl;
 template<typename T> class LocomotionCtrlData;
@@ -60,6 +62,7 @@ class FSM_State_Vision : public FSM_State<T> {
   DMat<T> _height_map;
   DMat<int> _idx_map;
 
+#ifdef LCM_MSG
   void handleHeightmapLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan, const heightmap_t* msg);
   void handleIndexmapLCM(const lcm::ReceiveBuffer* rbuf, const std::string& chan, const traversability_map_t* msg);
   void handleLocalization(const lcm::ReceiveBuffer* rbuf, const std::string& chan, const localization_lcmt* msg);
@@ -71,6 +74,7 @@ class FSM_State_Vision : public FSM_State<T> {
 
   vectorAligned< Vec3<T> > _obs_list; // loc, height
   obstacle_visual_t _obs_visual_lcm;
+#endif
 
   void _updateStateEstimator();
   void _JPosStand();

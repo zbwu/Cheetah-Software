@@ -3,7 +3,13 @@
 
 #include "GraphSearch.h"
 #include "cppTypes.h"
-#include "SparseMatrixMath.h"
+
+// SparseTriple copy from JCQP
+template<typename T>
+struct SparseTriple {
+  T value;
+  u32 r, c;
+};
 
 struct BblockID {
   u32 foot;

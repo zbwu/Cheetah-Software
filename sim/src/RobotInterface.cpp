@@ -8,9 +8,13 @@
 RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
                                PeriodicTaskManager *tm, ControlParameters& userParameters)
     : PeriodicTask(tm, ROBOT_INTERFACE_UPDATE_PERIOD, "robot-interface"),
+#ifdef LCM_MSG
       _lcm(getLcmUrl(255)),
+#endif
       _userParameters(userParameters) {
+#ifdef LCM_MSG
   _parameter_request_lcmt.requestNumber = 0;
+#endif
   _gfx = gfx;
   _robotType = robotType;
   printf("[RobotInterface] Load parameters...\n");
@@ -48,10 +52,12 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
   _gfx->_drawList.updateCheckerboard(0, floorID);
   _gfx->_drawList.buildDrawList();
 
+#ifdef LCM_MSG
   _lcm.subscribe("interface_response", &RobotInterface::handleControlParameter,
                  this);
   _lcm.subscribe("main_cheetah_visualization",
                  &RobotInterface::handleVisualizationData, this);
+#endif
 
   printf("[RobotInterface] Init dynamics\n");
   if (robotType == RobotType::MINI_CHEETAH)
@@ -73,6 +79,7 @@ RobotInterface::RobotInterface(RobotType robotType, Graphics3D *gfx,
   _fwdKinState.qd = zero12;
 }
 
+#ifdef LCM_MSG
 void RobotInterface::handleVisualizationData(
     const lcm::ReceiveBuffer *rbuf, const std::string &chan,
     const cheetah_visualization_lcmt *msg) {
@@ -93,13 +100,16 @@ void RobotInterface::handleVisualizationData(
   _simulator->setState(_fwdKinState);
   _simulator->forwardKinematics();
 }
+#endif
 
 void RobotInterface::run() {
   if (_gfx) {
     _gfx->_drawList.updateRobotFromModel(*_simulator, _robotID, true);
     _gfx->update();
+#ifdef LCM_MSG
     _gfx->getDriverCommand().get(&_gamepad_lcmt);
     _lcm.publish(INTERFACE_LCM_NAME, &_gamepad_lcmt);
+#endif
   }
 }
 
@@ -108,6 +118,8 @@ using namespace std::chrono_literals;
 void RobotInterface::sendControlParameter(const std::string &name,
                                           ControlParameterValue value,
                                           ControlParameterValueKind kind, bool isUser) {
+#ifdef LCM_MSG
+// temporarily disable robot interface
   if (_pendingControlParameterSend) {
     printf(
         "[ERROR] trying to send control parameter while a send is in progress, "
@@ -159,8 +171,10 @@ void RobotInterface::sendControlParameter(const std::string &name,
     }
   }
   _pendingControlParameterSend = false;
+#endif
 }
 
+#ifdef LCM_MSG
 void RobotInterface::handleControlParameter(
     const lcm::ReceiveBuffer *rbuf, const std::string &chan,
     const control_parameter_respones_lcmt *msg) {
@@ -184,11 +198,14 @@ void RobotInterface::handleControlParameter(
     _lcmCV.notify_all();
   }
 }
+#endif
 
 void RobotInterface::startInterface() {
   _running = true;
   this->start();
+#ifdef LCM_MSG
   _lcmThread = std::thread(&RobotInterface::lcmHandler, this);
+#endif
   printf("[RobotInterface] Send parameters to robot...\n");
   for (auto &kv : _controlParameters.collection._map) {
     sendControlParameter(kv.first, kv.second->get(kv.second->_kind),
@@ -211,8 +228,10 @@ void RobotInterface::stopInterface() {
   printf("lcmthread joined\n");
 }
 
+#ifdef LCM_MSG
 void RobotInterface::lcmHandler() {
   while (_running) {
     _lcm.handleTimeout(1000);
   }
 }
+#endif

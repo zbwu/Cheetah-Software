@@ -152,6 +152,7 @@ void LocomotionCtrl<T>::_CleanUp(){
   WBCtrl::_task_list.clear();
 }
 
+#ifdef LCM_MSG
 template<typename T>
 void LocomotionCtrl<T>::_LCM_PublishData() {
   int iter(0);
@@ -225,6 +226,7 @@ void LocomotionCtrl<T>::_LCM_PublishData() {
 
   WBCtrl::_wbcLCM.publish("wbc_lcm_data", &(WBCtrl::_wbc_data_lcm) );
 }
+#endif
 
 template class LocomotionCtrl<float>;
 template class LocomotionCtrl<double>;

@@ -180,14 +180,12 @@ void FSM_State<T>::runControls() {
 
   } else {
     // Zero out the commands if a controller was not selected
-    jointFeedForwardTorques =
-        Mat34<float>::Zero();                // feed forward joint torques
-    jointPositions = Mat34<float>::Zero();   // joint angle positions
-    jointVelocities = Mat34<float>::Zero();  // joint angular velocities
-    footFeedForwardForces =
-        Mat34<float>::Zero();              // feedforward forces at the feet
-    footPositions = Mat34<float>::Zero();  // cartesian foot positions
-    footVelocities = Mat34<float>::Zero();
+    jointFeedForwardTorques = Mat34<T>::Zero(); // feed forward joint torques
+    jointPositions = Mat34<T>::Zero();   // joint angle positions
+    jointVelocities = Mat34<T>::Zero();  // joint angular velocities
+    footFeedForwardForces = Mat34<T>::Zero(); // feedforward forces at the feet
+    footPositions = Mat34<T>::Zero();  // cartesian foot positions
+    footVelocities = Mat34<T>::Zero();
 
     // Print an error message
     std::cout << "[FSM_State] ERROR: No known controller was selected: "
@@ -278,8 +276,10 @@ void FSM_State<T>::runBalanceController() {
   double fOpt[12];
   balanceController.solveQP_nonThreaded(fOpt);
 
+#ifdef LCM_MSG
   // Publish the results over LCM
   balanceController.publish_data_lcm();
+#endif
 
   // Copy the results to the feed forward forces
   for (int leg = 0; leg < 4; leg++) {
@@ -317,5 +317,5 @@ void FSM_State<T>::turnOffAllSafetyChecks() {
   checkLegSingularity = false;    // do not let leg
 }
 
-// template class FSM_State<double>;
+template class FSM_State<double>;
 template class FSM_State<float>;

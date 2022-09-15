@@ -148,5 +148,5 @@ void FSM_State_StandUp<T>::onExit() {
   // Nothing to clean up when exiting
 }
 
-// template class FSM_State_StandUp<double>;
+template class FSM_State_StandUp<double>;
 template class FSM_State_StandUp<float>;

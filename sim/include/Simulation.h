@@ -25,8 +25,10 @@
 #include <utility>
 #include <vector>
 
+#ifdef LCM_MSG
 #include <lcm/lcm-cpp.hpp>
 #include "simulator_lcmt.hpp"
+#endif
 
 #define SIM_LCM_NAME "simulator_state"
 
@@ -90,7 +92,9 @@ class Simulation {
     delete _simulator;
     delete _robotDataSimulator;
     delete _imuSimulator;
+#ifdef LCM_MSG
     delete _lcm;
+#endif
 
     _sharedMemory.destory();
   }
@@ -146,7 +150,9 @@ class Simulation {
   TI_BoardControl _tiBoards[4];
 #endif
   RobotType _robot;
+#ifdef LCM_MSG
   lcm::LCM* _lcm = nullptr;
+#endif
 
   std::function<void(void)> _uiUpdate;
   std::function<void(std::string)> _errorCallback;
@@ -158,7 +164,9 @@ class Simulation {
   double _timeOfNextLowLevelControl = 0.;
   double _timeOfNextHighLevelControl = 0.;
   s64 _highLevelIterations = 0;
+#ifdef LCM_MSG
   simulator_lcmt _simLCM;
+#endif
 };
 
 #endif  // PROJECT_SIMULATION_H

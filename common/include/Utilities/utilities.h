@@ -303,6 +303,8 @@ Vec3<T> stringToVec3(const std::string& str) {
   return v;
 }
 
+#ifdef LCM_MSG
 std::string getLcmUrl(s64 ttl);
+#endif
 
 #endif  // PROJECT_UTILITIES_H

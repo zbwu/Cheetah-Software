@@ -16,14 +16,17 @@
 #define DEFAULT_TERRAIN_FILE "/default-terrain.yaml"
 #define DEFAULT_USER_FILE "/default-user-parameters-file.yaml"
 
-#include <lcm/lcm-cpp.hpp>
 #include "MiniCheetahDebug.h"
+#ifdef LCM_MSG
+#include <lcm/lcm-cpp.hpp>
 #include <leg_control_data_lcmt.hpp>
+#include <leg_control_command_lcmt.hpp>
 #include "rs_pointcloud_t.hpp"
 #include "heightmap_t.hpp"
 #include "traversability_map_t.hpp"
 #include "obstacle_visual_t.hpp"
 #include "velocity_visual_t.hpp"
+#endif
 
 namespace Ui {
 class SimControlPanel;
@@ -155,9 +158,11 @@ public slots:
   void ctrlVisionLCMThread(){ while(true){ _ctrlVisionLCM.handle();  } }
 #endif
 
+#ifdef LCM_MSG
   void handleSpiDebug(const lcm::ReceiveBuffer* rbuf, const std::string& chan,
       const leg_control_data_lcmt* msg);
   void miniCheetahDebugLCMThread(){ while(_startSpiDebug){ _miniCheetahDebugLCM.handleTimeout(1000);  } }
+#endif
 
 #ifdef LOCO_VISION
   lcm::LCM _heightmapLCM;
@@ -165,7 +170,9 @@ public slots:
   lcm::LCM _indexmapLCM;
   lcm::LCM _ctrlVisionLCM;
 #endif
+#ifdef LCM_MSG
   lcm::LCM _miniCheetahDebugLCM;
+#endif
 
 #ifdef LOCO_VISION
   std::thread _pointsLCMThread;
@@ -173,7 +180,9 @@ public slots:
   std::thread _indexmapLCMThread;
   std::thread _ctrlVisionLCMThread;
 #endif
+#ifdef LCM_MSG
   std::thread _miniCheetahDebugLCMThread;
+#endif
 
   MiniCheetahDebug _mcDebugWindow;
 

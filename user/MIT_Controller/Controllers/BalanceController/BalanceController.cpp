@@ -32,6 +32,7 @@ BalanceController::BalanceController()
 
   QPFinished = false;
 
+#ifdef LCM_MSG
   lcm = new lcm::LCM("udpm://239.255.76.67:7667?ttl=1");
   if (lcm->good()) {
     printf("LCM IN BALANCE CONTROL INITIALIZED\n");
@@ -39,6 +40,7 @@ BalanceController::BalanceController()
     printf("LCM IN BALANCE CONTROLLER FAILED\n");
     exit(-1);
   }
+#endif
 
   // Eigen QP matrices
   H_eigen.resize(NUM_VARIABLES_QP, NUM_VARIABLES_QP);
@@ -318,7 +320,9 @@ void BalanceController::solveQP_nonThreaded(double* xOpt) {
   QProblemObj_qpOASES.reset();
 
   calc_constraint_check();
+#ifdef LCM_MSG
   qp_controller_data_publish = qp_controller_data;
+#endif
 }
 
 void BalanceController::verifyModel(double* vbd_command) {
@@ -508,9 +512,11 @@ void BalanceController::calc_lbA_ubA_qpOASES() {
   }
 }
 
+#ifdef LCM_MSG
 void BalanceController::publish_data_lcm() {
   lcm->publish("CONTROLLER_qp_controller_data", &qp_controller_data_publish);
 }
+#endif
 
 void BalanceController::update_log_variables(double* p_des, double* p_act,
                                              double* v_des, double* v_act,

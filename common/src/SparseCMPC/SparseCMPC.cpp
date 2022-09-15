@@ -1,7 +1,6 @@
 #include "SparseCMPC/SparseCMPC.h"
 #include "Math/orientation_tools.h"
 #include <Utilities/Timer.h>
-#include "QpProblem.h"
 
 
 // X0 != x[0]

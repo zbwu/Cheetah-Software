@@ -4,11 +4,18 @@
 
 template<typename T>
 WBC_Ctrl<T>::WBC_Ctrl(FloatingBaseModel<T> model):
+#ifdef LCM_MSG
   _full_config(cheetah::num_act_joint + 7),
   _tau_ff(cheetah::num_act_joint),
   _des_jpos(cheetah::num_act_joint),
   _des_jvel(cheetah::num_act_joint),
   _wbcLCM(getLcmUrl(255))
+#else
+  _full_config(cheetah::num_act_joint + 7),
+  _tau_ff(cheetah::num_act_joint),
+  _des_jpos(cheetah::num_act_joint),
+  _des_jvel(cheetah::num_act_joint)
+#endif
 {
   _iter = 0;
   _full_config.setZero();
@@ -93,8 +100,10 @@ void WBC_Ctrl<T>::run(void* input, ControlFSMData<T> & data){
   // Update Leg Command
   _UpdateLegCMD(data);
 
+#ifdef LCM_MSG
   // LCM publish
   _LCM_PublishData();
+#endif
 }
 
 

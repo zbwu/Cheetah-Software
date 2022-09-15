@@ -315,5 +315,5 @@ void FSM_State_RecoveryStand<T>::onExit() {
   // Nothing to clean up when exiting
 }
 
-// template class FSM_State_RecoveryStand<double>;
+template class FSM_State_RecoveryStand<double>;
 template class FSM_State_RecoveryStand<float>;

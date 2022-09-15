@@ -94,5 +94,5 @@ void FSM_State_ImpedanceControl<T>::onExit() {
   // Nothing to clean up when exiting
 }
 
-// template class FSM_State_ImpedanceControl<double>;
+template class FSM_State_ImpedanceControl<double>;
 template class FSM_State_ImpedanceControl<float>;

@@ -559,7 +559,7 @@ void ConvexMPCLocomotion::updateMPCIfNeeded(int *mpcTable, ControlFSMData<float>
         }
       }
     }
-    Timer solveTimer;
+    // Timer solveTimer;
 
     if(_parameters->cmpc_use_sparse > 0.5) {
 #ifdef LOCO_SPARSE_MPC
@@ -570,7 +570,7 @@ void ConvexMPCLocomotion::updateMPCIfNeeded(int *mpcTable, ControlFSMData<float>
     } else {
       solveDenseMPC(mpcTable, data);
     }
-    //printf("TOTAL SOLVE TIME: %.3f\n", solveTimer.getMs());
+    // printf("TOTAL SOLVE TIME: %.3f\n", solveTimer.getMs());
   }
 
 }

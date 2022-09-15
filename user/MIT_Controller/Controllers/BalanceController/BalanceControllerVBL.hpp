@@ -21,9 +21,37 @@
 
 #include <Eigen/Dense>
 #include <qpOASES.hpp>
+#ifdef LCM_MSG
 #include <lcm/lcm-cpp.hpp>
 #include "sim_command_t.hpp"
 #include "two_contact_stand_data_t.hpp"
+#else
+typedef struct _two_contact_stand_data_t {
+  double exit_flag;
+  double nWSR;
+  double cpu_time_microseconds;
+  double f_opt[12];
+  double f_ref[4];
+  double f_control[12];
+  double f_unc[12];
+  double minForces[4];
+  double maxForces[4];
+  double contact_state[4];
+  double stance_legs;
+  double p_des[3];
+  double p_act[3];
+  double rpy[3];
+  double rpy_act[3];
+  double lbA[20];
+  double ubA[20];
+  double C_times_f[20];
+  double s[12];
+  double cost_to_go;
+  double Q_lqr[12];
+  double R_lqr;
+  double R_fil;
+} two_contact_stand_data_t;
+#endif
 
 
 static const int vblNUM_VARIABLES_QP = 12;
@@ -81,9 +109,13 @@ class BalanceControllerVBL
       
 
    private:
+#ifdef LCM_MSG
       lcm::LCM * lcm;
       two_contact_stand_data_t two_contact_stand_data, two_contact_stand_data_publish;
       sim_command_t command;
+#else
+      two_contact_stand_data_t two_contact_stand_data;
+#endif
 
        /* Fixed-Size qpOASES data */           
       QProblem QProblemObj_qpOASES;

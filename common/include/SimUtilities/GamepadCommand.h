@@ -7,7 +7,9 @@
 
 #include "Utilities/utilities.h"
 #include "cppTypes.h"
+#ifdef LCM_MSG
 #include "gamepad_lcmt.hpp"
+#endif
 
 /*!
  * The state of the gamepad
@@ -47,6 +49,7 @@ struct GamepadCommand {
     rightStickAnalog = Vec2<float>::Zero();
   }
 
+#ifdef LCM_MSG
   /*!
    * Set the values from an LCM message
    * @param lcmt : LCM message
@@ -96,6 +99,7 @@ struct GamepadCommand {
       lcmt->rightStickAnalog[i] = rightStickAnalog[i];
     }
   }
+#endif
 
   /*!
    * The Logitech F310's seem to do a bad job of returning to zero exactly, so a

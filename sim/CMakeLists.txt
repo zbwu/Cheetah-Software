@@ -27,20 +27,20 @@ find_package(GLUT REQUIRED)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
-include_directories("../common/include/")
-include_directories("../lcm-types/cpp")
-include_directories("../third-party/yaml-cpp/include")
+include_directories("${CMAKE_SOURCE_DIR}/common/include/")
 file(GLOB sources "src/*.cpp")
 
 add_executable(sim ${sources})
 target_include_directories(sim PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(sim biomimetics-static lcm-static
+target_link_libraries(sim biomimetics-static pthread
         Qt${QT_VERSION_MAJOR}::Gui
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::OpenGL
         OpenGL::GL OpenGL::GLU GLUT::GLUT
         ${SDL2_LIBRARIES})
+
+# target_link_libraries(sim lcm-static)
 
 if (QT_VERSION_MAJOR EQUAL 6)
   target_link_libraries(sim Qt${QT_VERSION_MAJOR}::OpenGLWidgets)

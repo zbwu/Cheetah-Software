@@ -79,11 +79,13 @@ void balanceControl_solveQP_nonThreaded() {
   BalanceControllerObj->solveQP_nonThreaded(xOpt_force);
 }
 
+#ifdef LCM_MSG
 void balanceControl_publish_data_lcm() {
   if (BalanceControllerObj != NULL) {
     BalanceControllerObj->publish_data_lcm();
   }
 }
+#endif
 
 double balanceControl_get_fOpt_matlab(int index) {
   return xOpt_force[index - 1];
